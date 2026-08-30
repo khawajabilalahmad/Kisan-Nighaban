@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     
     # Weather
     WEATHER_CACHE_TTL: int = 3600
+
+    # Gemini API
+    GEMINI_API_KEY: Optional[str] = None
     
     class Config:
         env_file = ".env"
