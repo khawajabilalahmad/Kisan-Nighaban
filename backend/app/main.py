@@ -1,9 +1,23 @@
+import contextlib
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Kisan-Nighaban API")
+from app.core.config import settings
+from app.db.session import engine, Base
+from app.api.routers import farms, weather
 
-# Configure CORS (useful if you don't use proxy, or for other origins)
+@contextlib.asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize Database Tables
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    # Cleanup
+    await engine.dispose()
+
+app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
+
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -11,6 +25,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(farms.router, prefix="/api/farms", tags=["Farms"])
+app.include_router(weather.router, prefix="/api/weather", tags=["Weather"])
 
 @app.get("/api/health")
 async def health_check():
