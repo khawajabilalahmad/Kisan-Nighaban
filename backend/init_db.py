@@ -1,7 +1,7 @@
 import asyncio
-from backend.app.database import engine, Base
-from backend.app.models.farm import Farm
-from backend.app.models.risk_assessment import RiskAssessment
+from app.database import engine, Base
+from app.models.farm import Farm
+from app.models.risk_assessment import RiskAssessment
 
 async def init_models():
     async with engine.begin() as conn:

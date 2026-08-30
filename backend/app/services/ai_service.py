@@ -1,8 +1,8 @@
 import json
 from google import genai
 from google.genai import types
-from backend.app.core.config import settings
-from backend.app.schemas.risk import RiskAssessmentOutput
+from app.core.config import settings
+from app.schemas.risk import RiskAssessmentOutput
 
 # Initialize the Gemini client
 # Note: Ensure GEMINI_API_KEY is set in your .env file
@@ -35,7 +35,7 @@ def generate_risk_assessment(crop_type: str, crop_profile: dict, weather_data: d
 
     # Call Gemini API requesting structured JSON output conforming to RiskAssessmentOutput
     response = client.models.generate_content(
-        model='gemini-1.5-flash',
+        model='gemini-3.1-flash-lite',
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",

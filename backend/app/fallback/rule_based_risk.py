@@ -1,4 +1,4 @@
-from backend.app.schemas.risk import RiskAssessmentOutput, RiskBreakdown, Recommendation
+from app.schemas.risk import RiskAssessmentOutput, RiskBreakdown, Recommendation
 
 def calculate_rule_based_risk(crop_type: str, crop_profile: dict, weather_data: dict, growth_stage: str, growth_stage_day: int) -> RiskAssessmentOutput:
     """

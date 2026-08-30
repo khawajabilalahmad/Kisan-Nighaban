@@ -6,15 +6,15 @@ from typing import List
 import logging
 import json
 
-from backend.app.database import get_db
-from backend.app.models.farm import Farm
-from backend.app.models.risk_assessment import RiskAssessment
-from backend.app.schemas.risk import RiskAssessmentOutput, RiskAssessmentResponse
+from app.database import get_db
+from app.models.farm import Farm
+from app.models.risk_assessment import RiskAssessment
+from app.schemas.risk import RiskAssessmentOutput, RiskAssessmentResponse
 
-from backend.app.services.weather_service import fetch_weather_forecast
-from backend.app.services.crop_profiles import CROP_PROFILES, compute_growth_stage
-from backend.app.services.ai_service import generate_risk_assessment
-from backend.app.fallback.rule_based_risk import calculate_rule_based_risk
+from app.services.weather_service import fetch_weather_forecast
+from app.services.crop_profiles import CROP_PROFILES, compute_growth_stage
+from app.services.ai_service import generate_risk_assessment
+from app.fallback.rule_based_risk import calculate_rule_based_risk
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +38,10 @@ async def assess_risk(farm_id: str, db: AsyncSession = Depends(get_db)):
     try:
         weather_data = await fetch_weather_forecast(farm.latitude, farm.longitude)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         logger.error(f"Failed to fetch weather data: {e}")
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Weather service unavailable")
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"Weather service unavailable: {str(e)}")
 
     # 3. Get Crop Profile & Growth Stage
     crop_type_lower = farm.crop_type.lower()
