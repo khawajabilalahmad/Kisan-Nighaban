@@ -1,18 +1,23 @@
+from sqlalchemy import Column, String, Float, Date, DateTime, func
+from sqlalchemy.orm import relationship
 import uuid
-from sqlalchemy import Column, String, Float, Date, DateTime
-from sqlalchemy.dialects.sqlite import DATETIME
-from sqlalchemy.sql import func
-from app.db.session import Base
+from backend.app.database import Base
+
+def generate_uuid():
+    return str(uuid.uuid4())
 
 class Farm(Base):
     __tablename__ = "farms"
 
-    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
-    name = Column(String, index=True, nullable=False)
+    id = Column(String, primary_key=True, default=generate_uuid)
+    name = Column(String, nullable=False)
     crop_type = Column(String, nullable=False)
     sowing_date = Column(Date, nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     district = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+    # Relationship to risk assessments
+    risk_assessments = relationship("RiskAssessment", back_populates="farm", cascade="all, delete-orphan")
