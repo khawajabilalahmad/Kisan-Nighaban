@@ -21,3 +21,20 @@ class RiskAssessmentOutput(BaseModel):
     growth_stage_day: int = Field(description="Current day in the growth stage")
     summary: str = Field(description="A short plain-language summary of the risks")
     recommendations: List[Recommendation]
+
+from datetime import datetime
+from typing import Any
+
+class RiskAssessmentResponse(BaseModel):
+    id: str
+    farm_id: str
+    assessed_at: datetime
+    risk_score: int
+    risk_level: str
+    risk_breakdown: RiskBreakdown
+    recommendations: List[Recommendation]
+    weather_snapshot: Any
+    growth_stage: str
+    
+    class Config:
+        from_attributes = True

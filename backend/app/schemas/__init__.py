@@ -1,1 +1,1 @@
-from .risk import RiskBreakdown, Recommendation, RiskAssessmentOutput
+from .risk import RiskBreakdown, Recommendation, RiskAssessmentOutput, RiskAssessmentResponse
