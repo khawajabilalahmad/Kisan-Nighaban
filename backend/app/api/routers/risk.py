@@ -6,7 +6,7 @@ from typing import List
 import logging
 import json
 
-from app.database import get_db
+from app.db.session import get_db
 from app.models.farm import Farm
 from app.models.risk_assessment import RiskAssessment
 from app.schemas.risk import RiskAssessmentOutput, RiskAssessmentResponse
