@@ -1,0 +1,184 @@
+.workflow-section {
+  padding: 4rem 2rem;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.workflow-section .section-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 3rem;
+  font-size: 1.1rem;
+}
+
+.carousel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  position: relative;
+  min-height: 320px;
+}
+
+.carousel-btn {
+  background: var(--surface);
+  border: 1px solid rgba(0,0,0,0.1);
+  color: var(--text);
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 5;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.carousel-btn:hover {
+  background: var(--primary);
+  color: white;
+  transform: scale(1.1);
+  border-color: var(--primary);
+}
+
+.carousel-content {
+  flex: 1;
+  max-width: 600px;
+  height: 320px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  perspective: 1000px;
+}
+
+.carousel-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  border-top: 6px solid transparent;
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+}
+
+.carousel-card.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+/* Colors based on logo */
+.carousel-card.color-primary {
+  border-top-color: var(--primary);
+}
+.carousel-card.color-primary .step-icon-wrapper {
+  color: var(--primary);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.carousel-card.color-secondary {
+  border-top-color: var(--secondary);
+}
+.carousel-card.color-secondary .step-icon-wrapper {
+  color: var(--secondary);
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.carousel-card.color-accent {
+  border-top-color: var(--accent);
+}
+.carousel-card.color-accent .step-icon-wrapper {
+  color: var(--accent);
+  background: rgba(134, 106, 191, 0.1);
+}
+
+.step-number {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.step-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.carousel-card.active .step-icon-wrapper {
+  transform: scale(1.1);
+}
+
+.carousel-card h3 {
+  margin-bottom: 1rem;
+  color: var(--text);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.carousel-card p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 1.1rem;
+  max-width: 90%;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2.5rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  background: var(--primary);
+  width: 24px;
+  border-radius: 12px;
+}
+
+.dot:hover:not(.active) {
+  background: rgba(0,0,0,0.3);
+}
+
+@media (max-width: 768px) {
+  .carousel-content {
+    height: 380px;
+  }
+  .carousel-card {
+    padding: 1.5rem;
+  }
+  .carousel-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
