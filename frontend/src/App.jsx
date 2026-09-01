@@ -2,10 +2,11 @@ import { useState } from 'react';
 import './App.css';
 import FarmSetup from './components/FarmSetup';
 import Dashboard from './components/Dashboard';
-import { Leaf, Home, LayoutDashboard } from 'lucide-react';
+import { Leaf, Home, LayoutDashboard, PlusCircle } from 'lucide-react';
+import LandingPage from './components/LandingPage';
 
 function App() {
-  const [view, setView] = useState('farm-setup'); // 'farm-setup' | 'dashboard'
+  const [view, setView] = useState('home'); // 'home' | 'farm-setup' | 'dashboard'
   const [selectedFarmId, setSelectedFarmId] = useState(null);
 
   function handleFarmSelect(farmId) {
@@ -23,7 +24,7 @@ function App() {
       <header className="app-header">
         <div className="header-inner">
           <div className="logo-section">
-            <div className="logo" onClick={() => setView('farm-setup')}>
+            <div className="logo" onClick={() => setView('home')}>
               <Leaf className="logo-icon" size={32} />
               <span className="logo-text">Kisan Nighaban</span>
             </div>
@@ -31,10 +32,16 @@ function App() {
           </div>
           <nav className="app-nav">
             <button
+              className={`nav-tab ${view === 'home' ? 'active' : ''}`}
+              onClick={() => setView('home')}
+            >
+              <Home size={18} /> Home
+            </button>
+            <button
               className={`nav-tab ${view === 'farm-setup' ? 'active' : ''}`}
               onClick={() => setView('farm-setup')}
             >
-              <Home size={18} /> Farm Setup
+              <PlusCircle size={18} /> Farm Setup
             </button>
             <button
               className={`nav-tab ${view === 'dashboard' ? 'active' : ''}`}
@@ -48,6 +55,7 @@ function App() {
       </header>
 
       <main className="app-main">
+        {view === 'home' && <LandingPage onGetStarted={() => setView('farm-setup')} />}
         {view === 'farm-setup' && <FarmSetup onFarmSaved={handleFarmSelect} />}
         {view === 'dashboard' && selectedFarmId && (
           <Dashboard farmId={selectedFarmId} onBack={handleBack} />

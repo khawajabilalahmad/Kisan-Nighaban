@@ -1,17 +1,25 @@
 :root {
   /* Spring Valley Theme (Light Mode) */
-  --primary: #22C55E;        /* Vibrant Apple Green */
-  --primary-light: #4ADE80;  /* Light Green */
-  --primary-dark: #16A34A;   /* Deep Green */
-  --secondary: #06B6D4;      /* Bright Cyan */
+  --primary: #22C55E;
+  /* Vibrant Apple Green */
+  --primary-light: #4ADE80;
+  /* Light Green */
+  --primary-dark: #16A34A;
+  /* Deep Green */
+  --secondary: #06B6D4;
+  /* Bright Cyan */
   --secondary-light: #22D3EE;
-  --accent: #866ABF;         /* Soft Purple */
+  --accent: #866ABF;
+  /* Soft Purple */
   --accent-light: #A78BFA;
-  
-  --bg: #F8FAFC;             /* Cool Gray/White */
-  --surface: rgba(255, 255, 255, 0.9); /* Frosted White */
+
+  --bg: #F8FAFC;
+  /* Cool Gray/White */
+  --surface: rgba(255, 255, 255, 0.9);
+  /* Frosted White */
   --surface-solid: #FFFFFF;
-  --text: #0F172A;           /* Deep Slate */
+  --text: #0F172A;
+  /* Deep Slate */
   --text-muted: #475569;
   --text-light: #94A3B8;
 
@@ -55,6 +63,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -62,7 +71,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-fade-in-up {
@@ -203,11 +214,35 @@ body {
   font-weight: 500;
 }
 
-/* ===== Farm Setup ===== */
-.farm-setup {
+/* ===== Farm Setup Split Layout ===== */
+.setup-split-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .setup-split-layout {
+    grid-template-columns: 1fr 1fr;
+    /* Removed align-items: start so it stretches vertically */
+  }
+}
+
+.setup-left-pane {
   display: flex;
   flex-direction: column;
   gap: 40px;
+}
+
+.setup-right-pane {
+  border-radius: var(--radius-lg);
+  overflow: visible;
+  /* Changed to visible for 3D overflow */
+  background: transparent;
+  box-shadow: none;
+  min-height: 500px;
+  /* Ensure it has a height on mobile */
 }
 
 .form-card {
@@ -426,9 +461,9 @@ body {
   margin-bottom: 16px;
   display: inline-flex;
   padding: 12px;
-  background: rgba(255,255,255, 0.8);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .value-prop-card h4 {
@@ -456,33 +491,42 @@ body {
 .icon-1 {
   top: 2%;
   left: -5%;
-  color: #38BDF8; /* Light Sky Blue */
+  color: #38BDF8;
+  /* Light Sky Blue */
 }
 
 .icon-2 {
   top: -5%;
   right: -5%;
-  color: #FBBF24; /* Amber / Sun */
+  color: #FBBF24;
+  /* Amber / Sun */
   animation-delay: -5s;
 }
 
 .icon-3 {
   top: 25%;
   right: -2%;
-  color: #4ADE80; /* Light Green */
+  color: #4ADE80;
+  /* Light Green */
   animation-delay: -10s;
 }
 
 .icon-4 {
   top: 30%;
   left: -5%;
-  color: #C4B5FD; /* Light Purple */
+  color: #C4B5FD;
+  /* Light Purple */
   animation-delay: -15s;
 }
 
 @keyframes float-slow {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  100% { transform: translate(30px, -40px) rotate(5deg); }
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(30px, -40px) rotate(5deg);
+  }
 }
 
 /* ===== Farms List ===== */
@@ -504,7 +548,7 @@ body {
   flex-direction: column;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   background: var(--surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -522,7 +566,7 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   padding: 24px 24px 16px;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .farm-title-group {
@@ -597,9 +641,17 @@ body {
   opacity: 0.8;
 }
 
-.location-icon { color: var(--risk-high); }
-.calendar-icon { color: var(--secondary); }
-.nav-icon { color: var(--text-muted); }
+.location-icon {
+  color: var(--risk-high);
+}
+
+.calendar-icon {
+  color: var(--secondary);
+}
+
+.nav-icon {
+  color: var(--text-muted);
+}
 
 .farm-card-footer {
   padding: 12px 24px 24px;
@@ -668,10 +720,11 @@ body {
 .current-weather h3 {
   color: var(--text);
   margin-bottom: 24px;
-  font-size: 18px;
+  font-size: 24px;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .weather-stats {
@@ -730,10 +783,11 @@ body {
 
 .risk-header h3 {
   color: var(--text);
-  font-size: 20px;
+  font-size: 24px;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .risk-top {
@@ -764,7 +818,8 @@ body {
 .risk-breakdown h3 {
   color: var(--text);
   margin-bottom: 20px;
-  font-size: 18px;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .breakdown-list {
@@ -806,9 +861,18 @@ body {
 }
 
 @keyframes pulse-bar {
-  0% { opacity: 0.85; }
-  50% { opacity: 1; filter: brightness(1.2); }
-  100% { opacity: 0.85; }
+  0% {
+    opacity: 0.85;
+  }
+
+  50% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+
+  100% {
+    opacity: 0.85;
+  }
 }
 
 .breakdown-bar-fill {
@@ -826,10 +890,11 @@ body {
 .recommendations h3 {
   color: var(--text);
   margin-bottom: 20px;
-  font-size: 18px;
+  font-size: 24px;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .rec-list {
@@ -890,10 +955,11 @@ body {
 .forecast-chart h3 {
   color: var(--text);
   margin-bottom: 24px;
-  font-size: 18px;
+  font-size: 24px;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .forecast-grid {
@@ -930,7 +996,8 @@ body {
 
 .form-group.floating {
   position: relative;
-  margin-top: 8px; /* space for floating label */
+  margin-top: 8px;
+  /* space for floating label */
 }
 
 .form-group.floating label {
@@ -946,8 +1013,8 @@ body {
   background: transparent;
 }
 
-.form-group.floating input:focus ~ label,
-.form-group.floating input:not(:placeholder-shown) ~ label {
+.form-group.floating input:focus~label,
+.form-group.floating input:not(:placeholder-shown)~label {
   top: 0;
   font-size: 12px;
   color: var(--primary);
@@ -1109,7 +1176,7 @@ body {
   .forecast-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .header-inner {
     flex-direction: column;
     gap: 16px;
