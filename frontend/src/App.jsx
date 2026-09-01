@@ -4,6 +4,7 @@ import FarmSetup from './components/FarmSetup';
 import Dashboard from './components/Dashboard';
 import { Leaf, Home, LayoutDashboard, PlusCircle } from 'lucide-react';
 import LandingPage from './components/LandingPage';
+import SunflowerMascot from './components/SunflowerMascot';
 
 function App() {
   const [view, setView] = useState('home'); // 'home' | 'farm-setup' | 'dashboard'
@@ -65,6 +66,7 @@ function App() {
       <footer className="app-footer">
         <p>Kisan Nighaban — Protecting Pakistan's Harvests from Climate Change</p>
       </footer>
+      <SunflowerMascot />
     </div>
   );
 }
