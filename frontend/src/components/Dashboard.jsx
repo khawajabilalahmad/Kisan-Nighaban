@@ -73,7 +73,7 @@ export default function Dashboard({ farmId, onBack }) {
       <div className="dashboard">
         <div className="error-screen">
           <p>Failed to load dashboard: {error}</p>
-          <button className="btn btn-primary" onClick={onBack}>
+          <button className="btn btn-premium" onClick={onBack}>
             Back to Farms
           </button>
         </div>
@@ -146,7 +146,7 @@ export default function Dashboard({ farmId, onBack }) {
         <div className="risk-header">
           <h3><Activity size={20} color="var(--accent)" /> Climate Risk Assessment</h3>
           <button
-            className="btn btn-primary"
+            className="btn btn-premium"
             onClick={handleAssess}
             disabled={assessing}
           >
