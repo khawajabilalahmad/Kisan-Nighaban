@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Date, DateTime, func
+from sqlalchemy import Column, String, Float, Date, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
 import uuid
 from app.database import Base
@@ -16,8 +16,10 @@ class Farm(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     district = Column(String, nullable=True)
+    owner_id = Column(String, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
+    owner = relationship("User", back_populates="farms")
     # Relationship to risk assessments
     risk_assessments = relationship("RiskAssessment", back_populates="farm", cascade="all, delete-orphan")
