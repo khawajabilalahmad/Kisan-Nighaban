@@ -2,9 +2,16 @@ const API_BASE = '/api';
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
+  const token = localStorage.getItem('token');
+  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const config = {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers,
   };
 
   const response = await fetch(url, config);

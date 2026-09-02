@@ -5,35 +5,37 @@ from typing import List
 
 from app.db.session import get_db
 from app.models.farm import Farm
+from app.models.user import User
 from app.schemas.farm import FarmCreate, FarmUpdate, FarmResponse
+from app.core.security import get_current_user
 
 router = APIRouter()
 
-@router.post("/", response_model=FarmResponse, status_code=status.HTTP_201_CREATED)
-async def create_farm(farm_in: FarmCreate, db: AsyncSession = Depends(get_db)):
-    new_farm = Farm(**farm_in.model_dump())
+@router.post("", response_model=FarmResponse, status_code=status.HTTP_201_CREATED)
+async def create_farm(farm_in: FarmCreate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    new_farm = Farm(**farm_in.model_dump(), owner_id=current_user.id)
     db.add(new_farm)
     await db.commit()
     await db.refresh(new_farm)
     return new_farm
 
-@router.get("/", response_model=List[FarmResponse])
-async def read_farms(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Farm).offset(skip).limit(limit))
+@router.get("", response_model=List[FarmResponse])
+async def read_farms(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    result = await db.execute(select(Farm).where(Farm.owner_id == current_user.id).offset(skip).limit(limit))
     farms = result.scalars().all()
     return farms
 
 @router.get("/{farm_id}", response_model=FarmResponse)
-async def read_farm(farm_id: str, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Farm).where(Farm.id == farm_id))
+async def read_farm(farm_id: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    result = await db.execute(select(Farm).where(Farm.id == farm_id, Farm.owner_id == current_user.id))
     farm = result.scalars().first()
     if not farm:
         raise HTTPException(status_code=404, detail="Farm not found")
     return farm
 
 @router.put("/{farm_id}", response_model=FarmResponse)
-async def update_farm(farm_id: str, farm_in: FarmUpdate, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Farm).where(Farm.id == farm_id))
+async def update_farm(farm_id: str, farm_in: FarmUpdate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    result = await db.execute(select(Farm).where(Farm.id == farm_id, Farm.owner_id == current_user.id))
     farm = result.scalars().first()
     if not farm:
         raise HTTPException(status_code=404, detail="Farm not found")
@@ -47,8 +49,8 @@ async def update_farm(farm_id: str, farm_in: FarmUpdate, db: AsyncSession = Depe
     return farm
 
 @router.delete("/{farm_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_farm(farm_id: str, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Farm).where(Farm.id == farm_id))
+async def delete_farm(farm_id: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    result = await db.execute(select(Farm).where(Farm.id == farm_id, Farm.owner_id == current_user.id))
     farm = result.scalars().first()
     if not farm:
         raise HTTPException(status_code=404, detail="Farm not found")
