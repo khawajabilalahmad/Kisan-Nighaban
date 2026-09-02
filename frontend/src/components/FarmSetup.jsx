@@ -3,6 +3,17 @@ import { PAKISTANI_CITIES, CROPS } from '../services/cities';
 import { getFarms, createFarm, updateFarm, deleteFarm } from '../services/api';
 import { Globe, Droplets, TrendingUp, Sprout, MapPin, Calendar, Navigation, Edit2, Trash2, TriangleAlert } from 'lucide-react';
 import BiosphereScene3D from './BiosphereScene3D';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix leaflet marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 export default function FarmSetup({ onFarmSaved }) {
   const [farms, setFarms] = useState([]);
@@ -11,6 +22,11 @@ export default function FarmSetup({ onFarmSaved }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [farmToDelete, setFarmToDelete] = useState(null);
+
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [tempLocation, setTempLocation] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   const [form, setForm] = useState({
     name: '',
@@ -49,6 +65,61 @@ export default function FarmSetup({ onFarmSaved }) {
         longitude: city.longitude,
       }));
     }
+  }
+
+  function MapClickHandler() {
+    useMapEvents({
+      click(e) {
+        setTempLocation({ lat: e.latlng.lat, lng: e.latlng.lng });
+      },
+    });
+    return tempLocation ? <Marker position={[tempLocation.lat, tempLocation.lng]} /> : null;
+  }
+
+  async function handleSearch(e) {
+    e.preventDefault();
+    if (!searchQuery) return;
+    setIsSearching(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        setTempLocation({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
+      } else {
+        alert("Location not found");
+      }
+    } catch (err) {
+      console.error("Search error", err);
+    } finally {
+      setIsSearching(false);
+    }
+  }
+
+  async function handleSaveLocation() {
+    if (!tempLocation) {
+      setIsMapOpen(false);
+      return;
+    }
+    
+    // Attempt reverse geocoding to get a name for the district/address
+    let locationName = '';
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${tempLocation.lat}&lon=${tempLocation.lng}`);
+      const data = await res.json();
+      if (data && data.address) {
+        locationName = data.address.city || data.address.town || data.address.village || data.address.county || data.address.state || 'Selected Location';
+      }
+    } catch (err) {
+      console.error("Reverse geocoding error", err);
+    }
+
+    setForm(prev => ({
+      ...prev,
+      latitude: tempLocation.lat.toFixed(4),
+      longitude: tempLocation.lng.toFixed(4),
+      district: locationName || 'Selected Location'
+    }));
+    setIsMapOpen(false);
   }
 
   function handleChange(e) {
@@ -175,54 +246,32 @@ export default function FarmSetup({ onFarmSaved }) {
               </div>
 
               <div className="form-group">
-                <label htmlFor="city">Nearest City</label>
-                <select
-                  id="city"
-                  value={form.district}
-                  onChange={(e) => handleCityChange(e.target.value)}
-                >
-                  <option value="">— Select a city —</option>
-                  {['Punjab', 'Sindh', 'KPK', 'Balochistan', 'Federal'].map((province) => (
-                    <optgroup key={province} label={province}>
-                      {PAKISTANI_CITIES.filter((c) => c.province === province).map((city) => (
-                        <option key={city.name} value={city.name}>
-                          {city.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group floating">
-                  <input
-                    id="latitude"
-                    name="latitude"
-                    type="number"
-                    step="0.0001"
-                    value={form.latitude}
-                    onChange={handleChange}
-                    placeholder=" "
-                    required
-                    readOnly={!!form.district}
-                  />
-                  <label htmlFor="latitude">Latitude</label>
+                <label>Farm Location</label>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      setTempLocation(form.latitude && form.longitude ? { lat: parseFloat(form.latitude), lng: parseFloat(form.longitude) } : { lat: 30.3753, lng: 69.3451 });
+                      setIsMapOpen(true);
+                    }}
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  >
+                    <MapPin size={18} />
+                    {form.latitude ? 'Change Location' : 'Select Farm Location'}
+                  </button>
                 </div>
-                <div className="form-group floating">
-                  <input
-                    id="longitude"
-                    name="longitude"
-                    type="number"
-                    step="0.0001"
-                    value={form.longitude}
-                    onChange={handleChange}
-                    placeholder=" "
-                    required
-                    readOnly={!!form.district}
-                  />
-                  <label htmlFor="longitude">Longitude</label>
-                </div>
+                {form.latitude && (
+                  <div style={{ marginTop: '10px', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', fontSize: '0.95rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <MapPin size={14} style={{ color: 'var(--primary)' }} />
+                      <strong>{form.district || 'Selected Location'}</strong>
+                    </div>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', paddingLeft: '20px' }}>
+                      {parseFloat(form.latitude).toFixed(4)}°N, {parseFloat(form.longitude).toFixed(4)}°E
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="form-actions">
@@ -322,6 +371,63 @@ export default function FarmSetup({ onFarmSaved }) {
               </button>
               <button className="btn btn-primary" onClick={executeDelete} style={{ flex: 1, background: '#ef4444', borderColor: '#ef4444', color: 'white' }}>
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Map Modal */}
+      {isMapOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }}>
+          <div className="glass-panel animate-fade-in-up" style={{
+            padding: '1.5rem', borderRadius: '24px', maxWidth: '800px', width: '95%',
+            display: 'flex', flexDirection: 'column', gap: '1rem',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text)' }}>Select Farm Location</h3>
+              <button type="button" onClick={() => setIsMapOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer', fontSize: '2rem', lineHeight: 1 }}>&times;</button>
+            </div>
+            
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search location (e.g. Lahore, Punjab)..."
+                style={{ flex: 1, padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '1rem' }}
+              />
+              <button type="submit" className="btn btn-primary" disabled={isSearching} style={{ padding: '10px 24px' }}>
+                {isSearching ? 'Searching...' : 'Search'}
+              </button>
+            </form>
+
+            <div style={{ height: '400px', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <MapContainer 
+                center={tempLocation && tempLocation.lat ? [tempLocation.lat, tempLocation.lng] : [30.3753, 69.3451]} 
+                zoom={tempLocation && tempLocation.lat ? 10 : 5} 
+                style={{ height: '100%', width: '100%', zIndex: 1 }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <MapClickHandler />
+              </MapContainer>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '0.5rem' }}>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsMapOpen(false)}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={handleSaveLocation} disabled={!tempLocation}>
+                Save Location
               </button>
             </div>
           </div>
