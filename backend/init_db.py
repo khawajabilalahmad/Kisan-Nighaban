@@ -2,6 +2,7 @@ import asyncio
 from app.database import engine, Base
 from app.models.farm import Farm
 from app.models.risk_assessment import RiskAssessment
+from app.models.user import User
 
 async def init_models():
     async with engine.begin() as conn:
