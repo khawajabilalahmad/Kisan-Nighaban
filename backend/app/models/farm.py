@@ -23,7 +23,7 @@ class Farm(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
     owner = relationship("User", back_populates="farms")
-    # Relationship to risk assessments
-    risk_assessments = relationship("RiskAssessment", back_populates="farm", cascade="all, delete-orphan")
+    # Relationship to farm analyses
+    farm_analyses = relationship("FarmAnalysis", back_populates="farm", cascade="all, delete-orphan")
     # Relationship to daily tracking logs
     activities = relationship("FarmActivity", back_populates="farm", cascade="all, delete-orphan")

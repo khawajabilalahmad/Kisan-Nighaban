@@ -2,13 +2,13 @@ import json
 from google import genai
 from google.genai import types
 from app.core.config import settings
-from app.schemas.risk import RiskAssessmentOutput
+from app.schemas.analysis import FarmAnalysisOutput
 
 # Initialize the Gemini client
 # Note: Ensure GEMINI_API_KEY is set in your .env file
 client = genai.Client(api_key=settings.GEMINI_API_KEY) if settings.GEMINI_API_KEY else None
 
-def generate_risk_assessment(
+def generate_farm_analysis(
     crop_type: str, 
     crop_profile: dict, 
     weather_data: dict, 
@@ -16,7 +16,7 @@ def generate_risk_assessment(
     growth_stage_day: int,
     farm_details: dict,
     recent_activities: list
-) -> RiskAssessmentOutput:
+) -> FarmAnalysisOutput:
     """
     Calls the Gemini API to assess climate risk based on crop profile, weather forecast, and farm activity.
     """
@@ -45,7 +45,7 @@ def generate_risk_assessment(
     
     Task:
     1. Calculate the climate risk for heat stress, drought, flooding, and wind damage based on the weather and crop thresholds.
-    2. Provide an overall risk score (0-100) and actionable recommendations in English.
+    2. Provide an overall health score (0-100) and actionable recommendations in English.
     3. Generate a `mascot_daily_tip`. This MUST be provided in two languages:
        - `ur`: "Roz Marra" (everyday) Roman Urdu / Hinglish. It should sound like a WhatsApp voice note from a local farmer friend.
        - `en`: Simple, easy-to-understand English.
@@ -57,17 +57,17 @@ def generate_risk_assessment(
        - DO NOT use difficult English words or robotic AI language. Keep it natural, friendly, and deeply contextual to their farm.
     """
 
-    # Call Gemini API requesting structured JSON output conforming to RiskAssessmentOutput
+    # Call Gemini API requesting structured JSON output conforming to FarmAnalysisOutput
     response = client.models.generate_content(
         model='gemini-3.1-flash-lite',
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_schema=RiskAssessmentOutput,
+            response_schema=FarmAnalysisOutput,
         ),
     )
     
-    # The response.text is a JSON string matching the RiskAssessmentOutput schema
+    # The response.text is a JSON string matching the FarmAnalysisOutput schema
     # Parse it into the Pydantic model and return
     assessment_data = json.loads(response.text)
-    return RiskAssessmentOutput(**assessment_data)
+    return FarmAnalysisOutput(**assessment_data)

@@ -17,3 +17,4 @@ class User(Base):
     created_at = Column(DateTime, default=func.now())
     
     farms = relationship("Farm", back_populates="owner", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
