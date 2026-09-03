@@ -13,6 +13,10 @@ class Recommendation(BaseModel):
     detail: str = Field(description="Detailed explanation of the action")
     urgency: str = Field(description="Urgency level, e.g., 'immediate', 'within-48-hours'")
 
+class MascotTip(BaseModel):
+    en: str = Field(description="The tip written in simple English")
+    ur: str = Field(description="The tip written in 'Roz Marra' Roman Urdu (Hinglish)")
+
 class RiskAssessmentOutput(BaseModel):
     risk_score: int = Field(description="Overall composite risk score (0-100)")
     risk_level: str = Field(description="Overall risk level: 'low', 'moderate', 'high', 'critical'")
@@ -20,7 +24,7 @@ class RiskAssessmentOutput(BaseModel):
     growth_stage: str = Field(description="Current growth stage of the crop")
     growth_stage_day: int = Field(description="Current day in the growth stage")
     summary: str = Field(description="A short plain-language summary of the risks")
-    mascot_daily_tip: str = Field(description="A friendly, conversational daily tip from a Digital Kisaan Bhai written strictly in 'Roz Marra' Roman Urdu (Hinglish). It should sound like a WhatsApp voice note from a local farmer friend.")
+    mascot_daily_tip: MascotTip = Field(description="Friendly, conversational daily tip from the Kisaan Bhai in multiple languages")
     recommendations: List[Recommendation]
 
 from datetime import datetime
@@ -36,7 +40,7 @@ class RiskAssessmentResponse(BaseModel):
     recommendations: List[Recommendation]
     weather_snapshot: Any
     growth_stage: str
-    mascot_daily_tip: str | None = None
+    mascot_daily_tip: Any | None = None
     
     class Config:
         from_attributes = True
