@@ -71,3 +71,63 @@ def generate_farm_analysis(
     # Parse it into the Pydantic model and return
     assessment_data = json.loads(response.text)
     return FarmAnalysisOutput(**assessment_data)
+
+def generate_chat_reply(
+    farm_context: str,
+    chat_history: list,
+    user_message: str,
+    image_path: str = None
+) -> str:
+    """
+    Generates a conversational reply as the Kisaan Mascot, with optional image support.
+    chat_history is a list of dicts: [{'role': 'user', 'content': '...'}, {'role': 'model', 'content': '...'}]
+    """
+    if not client:
+        raise ValueError("GEMINI_API_KEY is not configured.")
+
+    # 1. System Instructions (Context)
+    system_instruction = f"""
+    You are a "Digital Kisaan Bhai" (A friendly, local farmer advisor in Pakistan).
+    You speak in a mix of "Roz Marra" Roman Urdu (Hinglish) and simple English. 
+    You are conversational, empathetic, and knowledgeable.
+    
+    Here is the live context of the farm you are advising right now. 
+    Use this to give highly personalized answers.
+    {farm_context}
+    """
+
+    # 2. Build the contents list
+    contents = []
+    
+    # Append History
+    for msg in chat_history:
+        contents.append(
+            types.Content(role=msg['role'], parts=[types.Part.from_text(text=msg['content'])])
+        )
+    
+    # Append New Message
+    new_parts = []
+    new_parts.append(types.Part.from_text(text=user_message))
+    
+    if image_path:
+        with open(image_path, "rb") as f:
+            image_bytes = f.read()
+        new_parts.append(
+            types.Part.from_bytes(
+                data=image_bytes, 
+                mime_type="image/jpeg" # Assuming jpeg for simplicity, or we can guess based on extension
+            )
+        )
+        
+    contents.append(types.Content(role="user", parts=new_parts))
+
+    # 3. Generate Content
+    response = client.models.generate_content(
+        model='gemini-3.1-flash-lite',
+        contents=contents,
+        config=types.GenerateContentConfig(
+            system_instruction=system_instruction
+        )
+    )
+    
+    return response.text

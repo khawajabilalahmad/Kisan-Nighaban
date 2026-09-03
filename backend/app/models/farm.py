@@ -25,5 +25,7 @@ class Farm(Base):
     owner = relationship("User", back_populates="farms")
     # Relationship to farm analyses
     farm_analyses = relationship("FarmAnalysis", back_populates="farm", cascade="all, delete-orphan")
+    # Relationship to chat sessions
+    chat_sessions = relationship("ChatSession", back_populates="farm", cascade="all, delete-orphan")
     # Relationship to daily tracking logs
     activities = relationship("FarmActivity", back_populates="farm", cascade="all, delete-orphan")
