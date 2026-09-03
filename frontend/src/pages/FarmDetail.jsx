@@ -235,9 +235,9 @@ export default function FarmDetail() {
 
       <div className="p-6 space-y-6 pb-32">
         
-        {/* Farm Health Score Card */}
+        {/* Combined Farm Health Score & Trend Card */}
         <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 overflow-hidden relative group">
-          <div className="h-48 relative w-full overflow-hidden transition-colors duration-500 flex items-center justify-center">
+          <div className="relative w-full overflow-hidden transition-colors duration-500">
             {/* Background Gradient based on Health Score */}
             <div className={`absolute inset-0 opacity-80 dark:opacity-60 mix-blend-multiply dark:mix-blend-overlay ${
               !analysisData ? 'bg-slate-300 dark:bg-slate-700' :
@@ -246,13 +246,16 @@ export default function FarmDetail() {
               'bg-gradient-to-tr from-orange-500 to-red-600'
             }`}></div>
             
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-5">
-              <div className="flex justify-between items-end">
+            {/* Content overlay */}
+            <div className="relative z-10 flex flex-col p-5 pb-2">
+              
+              {/* Header (Score and Info) */}
+              <div className="flex justify-between items-start mb-6">
                 <div>
                   <p className="text-white font-black tracking-wide shadow-sm text-xl mb-1">
                     {t('farm_detail.health_score')}
                   </p>
-                  <p className="text-white/80 text-sm font-medium shadow-sm flex items-center gap-1.5">
+                  <p className="text-white/90 text-sm font-medium shadow-sm flex items-center gap-1.5">
                     <Activity size={14} />
                     {analysisData ? `${t('farm_detail.updated')} ${new Date(analysisData.assessed_at).toLocaleDateString()}` : t('farm_detail.run_analysis_score')}
                   </p>
@@ -267,36 +270,33 @@ export default function FarmDetail() {
                   </div>
                 )}
               </div>
+
+              {/* Chart */}
+              {analysisData && (
+                <div className="h-44 w-full mt-2" dir="ltr">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={mockHistoricalData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                      <XAxis dataKey="month" stroke="rgba(255,255,255,0.7)" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="rgba(255,255,255,0.7)" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
+                        itemStyle={{ fontWeight: 'bold', color: '#333' }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="score" 
+                        stroke="#ffffff" 
+                        strokeWidth={4} 
+                        dot={{ r: 4, fill: '#ffffff', strokeWidth: 2, stroke: 'rgba(0,0,0,0.2)' }} 
+                        activeDot={{ r: 6 }} 
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Historical Health Trend Graph */}
-        {analysisData && (
-          <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 mt-6">
-            <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight mb-4 pl-1">{t('farm_detail.health_trend', 'Health Trend')}</h3>
-            <div className="h-48 w-full" dir="ltr">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockHistoricalData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                  <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
-                    itemStyle={{ fontWeight: 'bold', color: '#10b981' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="score" 
-                    stroke="#10b981" 
-                    strokeWidth={4} 
-                    dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} 
-                    activeDot={{ r: 6 }} 
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
 
         {/* Secondary Actions */}
         <div className="grid grid-cols-2 gap-3">

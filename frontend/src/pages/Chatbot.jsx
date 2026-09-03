@@ -44,18 +44,27 @@ export default function Chatbot() {
   const [fetchingFarm, setFetchingFarm] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const chatContainerRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-  const sendMessageToBot = async (text, farmId = activeFarmId) => {
-    if (!text.trim() || !farmId) return;
+  const sendMessageToBot = async (text, farmId = activeFarmId, imageFile = null) => {
+    if ((!text.trim() && !imageFile) || !farmId) return;
 
-    const userMsg = { id: Date.now().toString(), role: 'user', content: text };
+    let content = text;
+    if (imageFile) {
+       const imagePreviewUrl = URL.createObjectURL(imageFile);
+       content = `![Attached Image](${imagePreviewUrl})\n\n${text}`;
+    }
+
+    const userMsg = { id: Date.now().toString(), role: 'user', content: content };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
+    setSelectedImage(null);
     setIsLoading(true);
 
     try {
-      const response = await chatAPI.sendMessage(farmId, userMsg.content, language);
+      const response = await chatAPI.sendMessage(farmId, text, language, imageFile);
       // The backend returns the ChatMessage object which has 'content'
       const botMsg = { 
         id: response.id || (Date.now() + 1).toString(), 
@@ -95,7 +104,17 @@ export default function Chatbot() {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    await sendMessageToBot(input, activeFarmId);
+    await sendMessageToBot(input, activeFarmId, selectedImage);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedImage(file);
+    } else if (file) {
+      toast.error('Please select a valid image file');
+    }
+    e.target.value = null; // reset input
   };
 
   useEffect(() => {
@@ -376,24 +395,43 @@ export default function Chatbot() {
 
       {/* Input Area */}
       <div dir="ltr" className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent dark:from-slate-900 dark:via-slate-900 z-10">
+        {selectedImage && (
+          <div className="mb-2 bg-white dark:bg-slate-800 p-2 rounded-xl shadow-md inline-block relative border border-slate-200 dark:border-slate-700 ml-4">
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md transition-colors"
+            >
+              <X size={12} />
+            </button>
+            <img src={URL.createObjectURL(selectedImage)} alt="Preview" className="h-16 w-auto rounded object-cover" />
+          </div>
+        )}
         <form onSubmit={handleSend} className="relative flex items-center bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 p-1 pl-4 pr-1">
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={handleImageChange}
+          />
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={t('chatbot.type_message')}
+            placeholder={selectedImage ? t('chatbot.type_message', 'Add a message with this image...') : t('chatbot.type_message')}
             className="flex-1 bg-transparent border-none focus:outline-none text-slate-800 dark:text-white py-3 placeholder:text-slate-400"
             disabled={isLoading}
           />
           <button
             type="button"
-            className="p-3 text-slate-400 hover:text-primary transition-colors"
+            onClick={() => fileInputRef.current?.click()}
+            className={`p-3 transition-colors ${selectedImage ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
           >
             <Paperclip size={20} />
           </button>
           <button
             type="submit"
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading || (!input.trim() && !selectedImage)}
             className="p-3 bg-primary text-white rounded-full hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Send size={20} />
