@@ -8,6 +8,7 @@ from app.schemas.auth import Token, ForgotPassword, ResetPassword
 from app.core.security import get_password_hash, verify_password, create_access_token, create_reset_token, verify_reset_token, get_current_user
 from app.core.email import send_reset_password_email
 from fastapi.security import OAuth2PasswordRequestForm
+import uuid
 
 router = APIRouter()
 
@@ -18,15 +19,19 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     if user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    result = await db.execute(select(User).where(User.mobile_number == user_in.mobile_number))
-    mobile = result.scalars().first()
+    mobile = user_in.mobile_number
     if mobile:
-        raise HTTPException(status_code=400, detail="Mobile number already registered")
+        result = await db.execute(select(User).where(User.mobile_number == mobile))
+        existing_mobile = result.scalars().first()
+        if existing_mobile:
+            raise HTTPException(status_code=400, detail="Mobile number already registered")
+    else:
+        mobile = f"dummy_{uuid.uuid4()}"
         
     hashed_password = get_password_hash(user_in.password)
     db_user = User(
         email=user_in.email,
-        mobile_number=user_in.mobile_number,
+        mobile_number=mobile,
         full_name=user_in.full_name,
         hashed_password=hashed_password
     )

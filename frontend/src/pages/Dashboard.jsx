@@ -54,10 +54,10 @@ export default function Dashboard() {
           </div>
         </div>
         
-        <div className="flex items-end justify-between mt-6">
-          <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md px-5 py-4 rounded-3xl border border-white/50 dark:border-white/10 text-slate-800 dark:text-white shadow-lg">
+        <div className="flex items-end justify-between mt-6 w-full">
+          <div className="w-full bg-white/60 dark:bg-black/40 backdrop-blur-md px-6 py-5 rounded-3xl border border-white/50 dark:border-white/10 text-slate-800 dark:text-white shadow-lg">
             <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">{t('dashboard.total_farms')}</p>
-            <p className="text-4xl font-black leading-none">{farmsList.length}</p>
+            <p className="text-5xl font-black leading-none">{farmsList.length}</p>
           </div>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function Dashboard() {
           </div>
           <div className="flex flex-col items-start">
             <span className="font-bold text-slate-700 dark:text-slate-300 text-lg">{t('dashboard.add_farm')}</span>
-            <span className="text-sm text-slate-500 font-medium">Start monitoring a new field</span>
+            <span className="text-sm text-slate-500 font-medium">{t('dashboard.start_monitoring')}</span>
           </div>
         </button>
       </div>

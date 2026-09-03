@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import Alert from '../components/Alert';
 import GrowingNature from '../components/GrowingNature';
 import { useAuth } from '../context/AuthContext';
@@ -8,8 +9,8 @@ import { authAPI } from '../services/api';
 export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    if (!name || !email || !mobileNumber || !password) {
+    if (!name || !email || !password) {
       setAlert({ type: 'error', title: 'Signup Failed', message: 'Please fill in all fields.' });
       return;
     }
@@ -25,7 +26,7 @@ export default function Signup() {
     setLoading(true);
     try {
       // 1. Register User
-      await authAPI.register({ full_name: name, email, mobile_number: mobileNumber, password });
+      await authAPI.register({ full_name: name, email, password });
       
       // 2. Auto-login after successful registration
       const res = await authAPI.login(email, password);
@@ -33,10 +34,18 @@ export default function Signup() {
       
       navigate('/');
     } catch (error) {
+      let errorMsg = 'Could not create account';
+      if (error.response?.data?.detail) {
+        if (Array.isArray(error.response.data.detail)) {
+          errorMsg = error.response.data.detail.map(err => `${err.loc[err.loc.length-1]}: ${err.msg}`).join(', ');
+        } else if (typeof error.response.data.detail === 'string') {
+          errorMsg = error.response.data.detail;
+        }
+      }
       setAlert({ 
         type: 'error', 
         title: 'Signup Failed', 
-        message: error.response?.data?.detail || 'Could not create account'
+        message: errorMsg
       });
     } finally {
       setLoading(false);
@@ -44,7 +53,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center relative font-sans">
+    <div dir="ltr" className="flex-1 flex flex-col justify-center relative font-sans">
 
       {alert && (
         <Alert 
@@ -91,26 +100,25 @@ export default function Signup() {
             />
           </div>
           
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Mobile Number</label>
-            <input 
-              type="tel" 
-              className="w-full bg-white/50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
-              placeholder="03001234567"
-              value={mobileNumber}
-              onChange={(e) => setMobileNumber(e.target.value)}
-            />
-          </div>
-          
+
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Password</label>
-            <input 
-              type="password" 
-              className="w-full bg-white/50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"}
+                className="w-full bg-white/50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 pr-12 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button 

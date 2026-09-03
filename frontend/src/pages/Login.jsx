@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import Alert from '../components/Alert';
 import GrowingNature from '../components/GrowingNature';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +9,7 @@ import { authAPI } from '../services/api';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -26,10 +28,18 @@ export default function Login() {
       login(res.access_token);
       navigate('/');
     } catch (error) {
+      let errorMsg = 'Invalid email or password';
+      if (error.response?.data?.detail) {
+        if (Array.isArray(error.response.data.detail)) {
+          errorMsg = error.response.data.detail.map(err => `${err.loc[err.loc.length-1]}: ${err.msg}`).join(', ');
+        } else if (typeof error.response.data.detail === 'string') {
+          errorMsg = error.response.data.detail;
+        }
+      }
       setAlert({ 
         type: 'error', 
         title: 'Login Failed', 
-        message: error.response?.data?.detail || 'Invalid email or password'
+        message: errorMsg
       });
     } finally {
       setLoading(false);
@@ -37,7 +47,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center relative font-sans">
+    <div dir="ltr" className="flex-1 flex flex-col justify-center relative font-sans">
 
       {alert && (
         <Alert 
@@ -78,13 +88,22 @@ export default function Login() {
               <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
               <Link to="/forgot-password" className="text-xs font-bold text-primary hover:text-primary-dark transition-colors">Forgot?</Link>
             </div>
-            <input 
-              type="password" 
-              className="w-full bg-white/50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"}
+                className="w-full bg-white/50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 pr-12 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button 
