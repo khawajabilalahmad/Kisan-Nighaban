@@ -1,60 +1,89 @@
-const API_BASE = '/api';
+// Dummy API Service
+// This file centralizes all backend calls.
+// Since the backend is off, it returns hardcoded dummy data wrapped in Promises to simulate network latency.
 
-async function request(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
-  const token = localStorage.getItem('token');
-  const headers = { 'Content-Type': 'application/json', ...options.headers };
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const authAPI = {
+  login: async (email, password) => {
+    await delay(800);
+    if (email === "ali@example.com" && password === "1234") {
+      return { access_token: "dummy_token_123", token_type: "bearer" };
+    }
+    throw new Error("Invalid credentials");
+  },
   
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  getUser: async () => {
+    await delay(500);
+    return {
+      id: "user_123",
+      email: "ali@example.com",
+      full_name: "Ali bhai",
+      mobile_number: "03001234567"
+    };
   }
+};
 
-  const config = {
-    ...options,
-    headers,
-  };
-
-  const response = await fetch(url, config);
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
-    throw new Error(errorBody.detail || `Request failed: ${response.status}`);
+export const farmsAPI = {
+  getFarms: async () => {
+    await delay(600);
+    return [
+      {
+        id: "farm_001",
+        name: "North Field",
+        crop_type: "wheat",
+        soil_type: "loamy",
+        water_source: "canal",
+        sowing_date: "2026-06-10"
+      },
+      {
+        id: "farm_002",
+        name: "South Cotton",
+        crop_type: "cotton",
+        soil_type: "sandy",
+        water_source: "tubewell",
+        sowing_date: "2026-07-01"
+      }
+    ];
   }
+};
 
-  if (response.status === 204) return null;
-  return response.json();
-}
+export const analysisAPI = {
+  getAnalysis: async (farmId) => {
+    await delay(1200);
+    return {
+      health_score: 85,
+      health_status: "good",
+      growth_stage: "vegetative",
+      recommendations: [
+        { title: "Irrigation Needed", detail: "Apply water within 48 hours", priority: 1 }
+      ],
+      mascot_daily_tip: {
+        ur: "Ali bhai, mausam theek hai, lekin parso paani lagana zaroori hai.",
+        en: "Weather is good, but irrigation is needed in 2 days."
+      }
+    };
+  }
+};
 
-// --- Farms ---
-export const getFarms = () => request('/farms');
-
-export const getFarm = (farmId) => request(`/farms/${farmId}`);
-
-export const createFarm = (farmData) =>
-  request('/farms', {
-    method: 'POST',
-    body: JSON.stringify(farmData),
-  });
-
-export const updateFarm = (farmId, farmData) =>
-  request(`/farms/${farmId}`, {
-    method: 'PUT',
-    body: JSON.stringify(farmData),
-  });
-
-export const deleteFarm = (farmId) =>
-  request(`/farms/${farmId}`, { method: 'DELETE' });
-
-// --- Weather ---
-export const getWeather = (farmId) => request(`/weather/${farmId}`);
-
-// --- Risk Assessment ---
-export const assessRisk = (farmId) =>
-  request(`/risk/${farmId}/assess`, { method: 'POST' });
-
-export const getLatestRisk = (farmId) => request(`/risk/${farmId}/latest`);
-
-export const getRiskHistory = (farmId) => request(`/risk/${farmId}/history`);
-
-// --- Health ---
-export const healthCheck = () => request('/health');
+export const chatAPI = {
+  getHistory: async (farmId) => {
+    await delay(500);
+    return {
+      messages: [
+        { id: "msg_1", role: "user", content: "Khet ki halat kaisi hai?" },
+        { id: "msg_2", role: "model", content: "Sab theek hai! Gandum bilkul healthy hai." }
+      ]
+    };
+  },
+  
+  sendMessage: async (farmId, text, imageFile) => {
+    await delay(1500);
+    // Simulate AI markdown response
+    return {
+      id: `msg_${Date.now()}`,
+      role: "model",
+      content: `### Masla Samajh Aa Gaya!\n\nAapne jo pucha: "${text}". \n\n**Mera Mashwara:**\n- Abhi urea **mat** dalen.\n- Kal baarish ka imkan hai.\n\nFikar ki koi baat nahi! 🌱`
+    };
+  }
+};

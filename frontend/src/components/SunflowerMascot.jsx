@@ -186,113 +186,19 @@ export default function SunflowerMascot() {
 
   return (
     <>
-      <style>{`
-        @keyframes floatZzz {
-          0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
-          20% { opacity: 1; transform: translate(10px, -15px) scale(1); }
-          80% { opacity: 0.8; transform: translate(25px, -45px) scale(1.5); }
-          100% { opacity: 0; transform: translate(30px, -60px) scale(1.8); }
-        }
-        @keyframes popSeed {
-          0% { opacity: 1; transform: translate(0, 0) scale(1); }
-          100% { opacity: 0; transform: var(--translate-end) scale(0); }
-        }
-        @keyframes popConfetti {
-          0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
-          100% { opacity: 0; transform: var(--translate-end) rotate(360deg) scale(0); }
-        }
-        @keyframes breathe {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
-        }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-4px) rotate(-3deg); }
-          75% { transform: translateX(4px) rotate(3deg); }
-        }
-        @keyframes stretch {
-          0% { transform: scaleY(0.5) scaleX(1.2) translateY(50px); }
-          50% { transform: scaleY(1.15) scaleX(0.9) translateY(-20px); }
-          100% { transform: scaleY(1) scaleX(1) translateY(0); }
-        }
-        .mascot-container {
-          position: fixed;
-          bottom: -15px; 
-          right: 30px;
-          width: 195px; 
-          height: 255px;
-          z-index: 9999;
-          cursor: pointer;
-        }
-        .mascot-global {
-          width: 100%;
-          height: 100%;
-          transform-origin: bottom center;
-          transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .mascot-global.breathing {
-          animation: breathe 4s ease-in-out infinite;
-        }
-        .mascot-global.stretching {
-          animation: stretch 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        .mascot-global.shaking {
-          animation: shake 0.5s ease-in-out infinite;
-        }
-        .parallax-element {
-          transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        .mascot-container:hover .mascot-global {
-          filter: drop-shadow(0 4px 16px rgba(166, 206, 57, 0.5));
-        }
-        .tooltip-bubble {
-          position: absolute;
-          top: -40px;
-          left: -120px;
-          width: 180px;
-          background: white;
-          color: #1F4529;
-          padding: 12px 16px;
-          border-radius: 16px;
-          border-bottom-right-radius: 4px;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          font-weight: 500;
-          line-height: 1.4;
-          opacity: 0;
-          transform: translateY(10px) scale(0.9);
-          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-          pointer-events: none;
-        }
-        .tooltip-bubble.visible {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-        .tooltip-bubble::after {
-          content: '';
-          position: absolute;
-          bottom: -8px;
-          right: 16px;
-          border-width: 8px 8px 0;
-          border-style: solid;
-          border-color: white transparent transparent transparent;
-        }
-      `}</style>
-      
       <div
         ref={mascotRef}
-        className="mascot-container"
+        className="fixed bottom-[-15px] right-[30px] w-[195px] h-[255px] z-[9999] cursor-pointer group"
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className={`tooltip-bubble ${showTooltip ? 'visible' : ''}`}>
+        <div className={`absolute top-[-40px] left-[-120px] w-[180px] bg-white text-[#1F4529] py-3 px-4 rounded-2xl rounded-br-sm shadow-[0_10px_25px_rgba(0,0,0,0.15)] font-sans text-[13px] font-medium leading-[1.4] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none after:content-[''] after:absolute after:-bottom-2 after:right-4 after:border-[8px] after:border-t-white after:border-x-transparent after:border-b-transparent ${showTooltip ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2.5 scale-90'}`}>
           {tooltipText}
         </div>
 
         <div 
-          className={`mascot-global ${isBreathing ? 'breathing' : ''} ${isStretching ? 'stretching' : ''} ${isHovered || partyMode ? 'shaking' : ''}`}
+          className={`w-full h-full origin-bottom transition-transform duration-[600ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:drop-shadow-[0_4px_16px_rgba(166,206,57,0.5)] ${isBreathing ? 'animate-breathe' : ''} ${isStretching ? 'animate-stretch' : ''} ${isHovered || partyMode ? 'animate-shake' : ''}`}
           style={isStretching ? {} : { transform: bodyTransform }}
         >
           <svg width="100%" height="100%" viewBox="-15 -15 130 170">
@@ -343,10 +249,8 @@ export default function SunflowerMascot() {
                 <circle
                   key={`seed-${i}`}
                   cx="50" cy="50" r="3.5" fill="#78350F"
-                  style={{
-                    '--translate-end': `translate(${tx}px, ${ty}px)`,
-                    animation: `popSeed 0.8s ease-out forwards`
-                  }}
+                  className="animate-popSeed origin-center"
+                  style={{ '--translate-end': `translate(${tx}px, ${ty}px)` }}
                 />
               );
             })}
@@ -362,6 +266,7 @@ export default function SunflowerMascot() {
                   key={`confetti-${i}`}
                   x="45" y="45" width="10" height="10" 
                   fill={colors[i % colors.length]}
+                  className="origin-center"
                   style={{
                     '--translate-end': `translate(${tx}px, ${ty}px)`,
                     animation: `popConfetti 1.5s ease-out infinite ${i * 0.1}s`
@@ -389,13 +294,13 @@ export default function SunflowerMascot() {
             </g>
 
             {/* Parallax Face Background */}
-            <g className="parallax-element" style={{ transform: `translate(${bgOffsetX}px, ${bgOffsetY}px)` }} filter="url(#faceShadow)">
+            <g className="transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]" style={{ transform: `translate(${bgOffsetX}px, ${bgOffsetY}px)` }} filter="url(#faceShadow)">
               <circle cx="50" cy="50" r="28" fill="url(#faceGrad)" />
               <circle cx="50" cy="50" r="23" fill="url(#seedCenterGrad)" stroke="#78350F" strokeWidth="2" strokeDasharray="2 2" />
             </g>
 
             {/* Parallax Facial Features */}
-            <g className="parallax-element" style={{ transform: `translate(${featureOffsetX}px, ${featureOffsetY}px)` }}>
+            <g className="transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]" style={{ transform: `translate(${featureOffsetX}px, ${featureOffsetY}px)` }}>
 
               {/* Party Hat */}
               {partyMode && (
@@ -447,9 +352,9 @@ export default function SunflowerMascot() {
               {/* Zzz's */}
               {isSleeping && (
                 <g fill="#FFF" fontWeight="900" fontSize="16" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
-                  <text x="70" y="10" style={{ animation: 'floatZzz 3s infinite linear' }}>Z</text>
-                  <text x="70" y="10" style={{ animation: 'floatZzz 3s infinite linear 1s' }}>z</text>
-                  <text x="70" y="10" style={{ animation: 'floatZzz 3s infinite linear 2s' }}>z</text>
+                  <text x="70" y="10" className="animate-floatZzz">Z</text>
+                  <text x="70" y="10" className="animate-floatZzz" style={{ animationDelay: '1s' }}>z</text>
+                  <text x="70" y="10" className="animate-floatZzz" style={{ animationDelay: '2s' }}>z</text>
                 </g>
               )}
             </g>
