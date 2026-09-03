@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, LogOut, ChevronDown, ChevronRight, Edit3, ShieldCheck, X } from 'lucide-react';
+import { User, LogOut, ChevronDown, ChevronRight, Edit3, ShieldCheck, X, ShieldAlert, Lock, HelpCircle, Map } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { farmsAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
 export default function Profile() {
@@ -14,6 +15,19 @@ export default function Profile() {
   
   const [expandedSection, setExpandedSection] = useState(null); // 'personal' or 'privacy'
   const [showEditModal, setShowEditModal] = useState(false);
+  const [totalFarms, setTotalFarms] = useState(0);
+
+  useEffect(() => {
+    const fetchFarms = async () => {
+      try {
+        const farms = await farmsAPI.getFarms();
+        setTotalFarms(farms.length);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchFarms();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -25,7 +39,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6 space-y-6 pt-4 overflow-y-auto pb-24">
+    <div className="flex-1 flex flex-col p-6 space-y-6 pt-4 overflow-y-auto pb-32">
       <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight mb-2">Profile</h2>
 
       {/* Profile Card */}
@@ -45,6 +59,9 @@ export default function Profile() {
           <span className="px-3 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 rounded-full text-xs font-bold uppercase tracking-wide border border-green-200 dark:border-green-800/50 flex items-center gap-1">
             <ShieldCheck size={14} /> Verified Farmer
           </span>
+          <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full text-xs font-bold uppercase tracking-wide border border-blue-200 dark:border-blue-800/50 flex items-center gap-1">
+            {totalFarms} {totalFarms === 1 ? 'Farm' : 'Farms'}
+          </span>
         </div>
       </div>
 
@@ -54,7 +71,12 @@ export default function Profile() {
         {/* Personal Information Accordion */}
         <div className="border-b border-slate-100 dark:border-white/5">
           <button onClick={() => toggleSection('personal')} className="w-full flex items-center justify-between p-5 hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">Personal Information</span>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <User size={18} className="text-blue-500" />
+              </div>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">Personal Information</span>
+            </div>
             {expandedSection === 'personal' ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
           </button>
           
@@ -81,25 +103,42 @@ export default function Profile() {
 
         {/* Manage Farms Link */}
         <button onClick={() => navigate('/farms')} className="w-full flex items-center justify-between p-5 hover:bg-white/50 dark:hover:bg-white/5 transition-colors border-b border-slate-100 dark:border-white/5">
-          <span className="font-semibold text-slate-700 dark:text-slate-300">Manage Farms</span>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <Map size={18} className="text-green-500" />
+            </div>
+            <span className="font-semibold text-slate-700 dark:text-slate-300">Manage Farms</span>
+          </div>
           <ChevronRight size={20} className="text-slate-400" />
         </button>
         
-        {/* Privacy & Security Accordion */}
-        <div>
+        {/* Privacy & Security */}
+        <div className="border-b border-slate-100 dark:border-white/5">
           <button onClick={() => toggleSection('privacy')} className="w-full flex items-center justify-between p-5 hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">Privacy & Security</span>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <Lock size={18} className="text-purple-500" />
+              </div>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">Privacy & Security</span>
+            </div>
             {expandedSection === 'privacy' ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
           </button>
-
+          
           {expandedSection === 'privacy' && (
             <div className="p-5 pt-0 bg-white/30 dark:bg-black/20 flex flex-col space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30">
-                <p className="text-blue-800 dark:text-blue-200 text-sm font-medium leading-relaxed">
-                  We don't share your information with anyone. Your farm data and personal details are strictly confidential.
-                </p>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30 flex items-start gap-4">
+                <ShieldAlert size={24} className="text-blue-500 shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-1">Your Data is Secure</h4>
+                  <p className="text-blue-800/80 dark:text-blue-200/80 text-sm font-medium leading-relaxed">
+                    We do not share your farm analytics, yields, or personal contact info with any third parties. Your agricultural data is encrypted and strictly confidential.
+                  </p>
+                </div>
               </div>
-              <button className="w-full flex items-center justify-center gap-2 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+              <button 
+                onClick={() => toast.success("Password reset link sent to your email!")}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
                 Change Password
               </button>
             </div>

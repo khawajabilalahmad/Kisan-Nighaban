@@ -130,6 +130,11 @@ export const notificationsAPI = {
   markAsRead: async (notificationId) => {
     const response = await api.post(`/notifications/${notificationId}/read`);
     return response.data;
+  },
+  
+  deleteNotification: async (notificationId) => {
+    const response = await api.delete(`/notifications/${notificationId}`);
+    return response.data;
   }
 };
 

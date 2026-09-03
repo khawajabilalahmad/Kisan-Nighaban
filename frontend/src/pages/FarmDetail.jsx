@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Droplets, Thermometer, Wind, AlertTriangle, Trash2, Edit2, Activity, X, Navigation, MapPin, Sprout } from 'lucide-react';
+import { ArrowLeft, Droplets, Thermometer, Wind, AlertTriangle, Trash2, Edit2, Activity, X, Navigation, MapPin, Sprout, CloudRain } from 'lucide-react';
 import MapPicker from '../components/MapPicker';
 import { farmsAPI, weatherAPI, analysisAPI, activitiesAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -12,7 +12,9 @@ export default function FarmDetail() {
   const [farm, setFarm] = useState(null);
   const [activities, setActivities] = useState([]);
   const [analysisData, setAnalysisData] = useState(null);
-  const [weather, setWeather] = useState({ temp: '32°C', humidity: '45%', wind: '12 km/h' });
+  const [weather, setWeather] = useState({ temp: '--°C', humidity: '--%', wind: '-- km/h' });
+  const [dailyForecast, setDailyForecast] = useState(null);
+  const [selectedDayIdx, setSelectedDayIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -47,8 +49,22 @@ export default function FarmDetail() {
       setLocationName(`${data.location_lat}, ${data.location_long}`);
       
       // Simulate fetching weather
-      // const wData = await weatherAPI.getWeather(id);
-      
+      // Fetch Weather Data
+      try {
+        const wData = await weatherAPI.getWeather(id);
+        if (wData && wData.weather) {
+          setWeather({
+            temp: wData.weather.current?.temperature_2m + '°C' || '--°C',
+            humidity: wData.weather.current?.relative_humidity_2m + '%' || '--%',
+            wind: wData.weather.current?.wind_speed_10m + ' km/h' || '--'
+          });
+          if (wData.weather.daily) {
+            setDailyForecast(wData.weather.daily);
+          }
+        }
+      } catch (err) {
+        console.error("No weather data", err);
+      }
       // Fetch Activities
       try {
         const acts = await activitiesAPI.getActivities(id);
@@ -182,7 +198,7 @@ export default function FarmDetail() {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto relative bg-transparent font-sans">
+    <div className="flex-1 flex flex-col overflow-y-auto relative font-sans">
       
       {/* Dynamic Header */}
       <div className="sticky top-0 z-40 bg-white/70 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 px-6 py-4 flex items-center justify-between transition-colors duration-500">
@@ -205,7 +221,7 @@ export default function FarmDetail() {
         </div>
       </div>
 
-      <div className="p-6 space-y-6 pb-24">
+      <div className="p-6 space-y-6 pb-32">
         
         {/* Farm Health Score Card */}
         <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 overflow-hidden relative group">
@@ -268,22 +284,60 @@ export default function FarmDetail() {
           </button>
         </div>
 
-        {/* Weather & Conditions Grid */}
-        <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight pl-1">Local Conditions</h3>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md p-4 rounded-2xl border border-white/50 dark:border-white/10 flex flex-col items-center justify-center text-center">
-            <Thermometer size={24} className="text-red-500 mb-2" />
-            <span className="font-bold text-slate-800 dark:text-white">{weather.temp}</span>
+        {/* 7-Day Weather Forecast */}
+        <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight pl-1 mt-6">Weather Forecast</h3>
+        {dailyForecast ? (
+          <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-3xl p-5 border border-white/50 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            
+            {/* Horizontal Day Slider */}
+            <div className="flex overflow-x-auto gap-3 pb-4 snap-x hide-scrollbar">
+              {dailyForecast.time.map((dateStr, idx) => {
+                const date = new Date(dateStr);
+                const dayName = idx === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
+                const isSelected = selectedDayIdx === idx;
+                return (
+                  <button 
+                    key={idx}
+                    onClick={() => setSelectedDayIdx(idx)}
+                    className={`min-w-[80px] snap-center rounded-2xl p-3 flex flex-col items-center transition-all ${isSelected ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                  >
+                    <span className="text-xs font-bold uppercase tracking-widest opacity-80">{dayName}</span>
+                    <span className="font-black text-lg mt-1">{Math.round(dailyForecast.temperature_2m_max[idx])}°</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Selected Day Details */}
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-2xl flex flex-col items-center justify-center text-center">
+                <Thermometer size={20} className="text-orange-500 mb-1" />
+                <span className="font-bold text-sm text-slate-800 dark:text-white">
+                  {Math.round(dailyForecast.temperature_2m_max[selectedDayIdx])}° / {Math.round(dailyForecast.temperature_2m_min[selectedDayIdx])}°
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">High/Low</span>
+              </div>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl flex flex-col items-center justify-center text-center">
+                <CloudRain size={20} className="text-blue-500 mb-1" />
+                <span className="font-bold text-sm text-slate-800 dark:text-white">
+                  {dailyForecast.precipitation_sum[selectedDayIdx]} mm
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">Rain</span>
+              </div>
+              <div className="bg-teal-50 dark:bg-teal-900/20 p-3 rounded-2xl flex flex-col items-center justify-center text-center">
+                <Wind size={20} className="text-teal-500 mb-1" />
+                <span className="font-bold text-sm text-slate-800 dark:text-white">
+                  {dailyForecast.wind_speed_10m_max[selectedDayIdx]} km/h
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">Max Wind</span>
+              </div>
+            </div>
           </div>
-          <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md p-4 rounded-2xl border border-white/50 dark:border-white/10 flex flex-col items-center justify-center text-center">
-            <Droplets size={24} className="text-blue-500 mb-2" />
-            <span className="font-bold text-slate-800 dark:text-white">{weather.humidity}</span>
+        ) : (
+          <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md p-6 rounded-3xl border border-white/50 dark:border-white/10 text-center">
+            <span className="text-slate-500">Loading forecast...</span>
           </div>
-          <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md p-4 rounded-2xl border border-white/50 dark:border-white/10 flex flex-col items-center justify-center text-center">
-            <Wind size={24} className="text-teal-500 mb-2" />
-            <span className="font-bold text-slate-800 dark:text-white">{weather.wind}</span>
-          </div>
-        </div>
+        )}
 
         {/* Run Analysis Button (Moved Below Weather) */}
         <button 
