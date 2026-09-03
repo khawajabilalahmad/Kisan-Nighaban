@@ -44,7 +44,7 @@ export default function Profile() {
       <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight mb-2">{t('profile.title')}</h2>
 
       {/* Profile Card */}
-      <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 transition-colors duration-500 text-center relative">
+      <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 transition-colors duration-500 text-center relative shrink-0">
         <button onClick={() => setShowEditModal(true)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-primary transition-colors bg-white/50 dark:bg-black/20 rounded-full">
           <Edit3 size={18} />
         </button>
@@ -66,7 +66,7 @@ export default function Profile() {
       </div>
 
       {/* Account Settings Menu */}
-      <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-3xl shadow-sm border border-white/50 dark:border-white/10 transition-colors duration-500 flex flex-col overflow-hidden">
+      <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-3xl shadow-sm border border-white/50 dark:border-white/10 transition-colors duration-500 flex flex-col overflow-hidden shrink-0">
         
         {/* Personal Information Accordion */}
         <div className="border-b border-slate-100 dark:border-white/5">
@@ -145,7 +145,7 @@ export default function Profile() {
       {/* Logout Button */}
       <button 
         onClick={handleLogout}
-        className="w-full bg-white/60 dark:bg-black/40 backdrop-blur-md p-4 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-red-100 dark:border-red-900/30 flex items-center justify-center gap-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-300"
+        className="w-full bg-white/60 dark:bg-black/40 backdrop-blur-md p-4 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-red-100 dark:border-red-900/30 flex items-center justify-center gap-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-300 shrink-0"
       >
         <LogOut size={20} />
         <span className="font-bold">{t('profile.logout')}</span>
