@@ -1,89 +1,149 @@
-// Dummy API Service
-// This file centralizes all backend calls.
-// Since the backend is off, it returns hardcoded dummy data wrapped in Promises to simulate network latency.
+import axios from 'axios';
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// Configure the base URL for the FastAPI backend
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-export const authAPI = {
-  login: async (email, password) => {
-    await delay(800);
-    if (email === "ali@example.com" && password === "1234") {
-      return { access_token: "dummy_token_123", token_type: "bearer" };
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add a request interceptor to automatically attach the JWT token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    throw new Error("Invalid credentials");
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Auth Service
+export const authAPI = {
+  // Login expects application/x-www-form-urlencoded as per OAuth2 spec standard used in FastAPI
+  login: async (email, password) => {
+    const formData = new URLSearchParams();
+    formData.append('username', email); // FastAPI OAuth2PasswordRequestForm uses 'username'
+    formData.append('password', password);
+    
+    const response = await api.post('/auth/login', formData, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    return response.data;
+  },
+  
+  register: async (userData) => {
+    const response = await api.post('/auth/register', userData);
+    return response.data;
   },
   
   getUser: async () => {
-    await delay(500);
-    return {
-      id: "user_123",
-      email: "ali@example.com",
-      full_name: "Ali bhai",
-      mobile_number: "03001234567"
-    };
+    const response = await api.get('/auth/me');
+    return response.data;
   }
 };
 
+// Farms Service
 export const farmsAPI = {
   getFarms: async () => {
-    await delay(600);
-    return [
-      {
-        id: "farm_001",
-        name: "North Field",
-        crop_type: "wheat",
-        soil_type: "loamy",
-        water_source: "canal",
-        sowing_date: "2026-06-10"
-      },
-      {
-        id: "farm_002",
-        name: "South Cotton",
-        crop_type: "cotton",
-        soil_type: "sandy",
-        water_source: "tubewell",
-        sowing_date: "2026-07-01"
-      }
-    ];
-  }
-};
-
-export const analysisAPI = {
-  getAnalysis: async (farmId) => {
-    await delay(1200);
-    return {
-      health_score: 85,
-      health_status: "good",
-      growth_stage: "vegetative",
-      recommendations: [
-        { title: "Irrigation Needed", detail: "Apply water within 48 hours", priority: 1 }
-      ],
-      mascot_daily_tip: {
-        ur: "Ali bhai, mausam theek hai, lekin parso paani lagana zaroori hai.",
-        en: "Weather is good, but irrigation is needed in 2 days."
-      }
-    };
-  }
-};
-
-export const chatAPI = {
-  getHistory: async (farmId) => {
-    await delay(500);
-    return {
-      messages: [
-        { id: "msg_1", role: "user", content: "Khet ki halat kaisi hai?" },
-        { id: "msg_2", role: "model", content: "Sab theek hai! Gandum bilkul healthy hai." }
-      ]
-    };
+    const response = await api.get('/farms');
+    return response.data;
   },
   
-  sendMessage: async (farmId, text, imageFile) => {
-    await delay(1500);
-    // Simulate AI markdown response
-    return {
-      id: `msg_${Date.now()}`,
-      role: "model",
-      content: `### Masla Samajh Aa Gaya!\n\nAapne jo pucha: "${text}". \n\n**Mera Mashwara:**\n- Abhi urea **mat** dalen.\n- Kal baarish ka imkan hai.\n\nFikar ki koi baat nahi! 🌱`
-    };
+  getFarm: async (farmId) => {
+    const response = await api.get(`/farms/${farmId}`);
+    return response.data;
+  },
+  
+  createFarm: async (farmData) => {
+    const response = await api.post('/farms', farmData);
+    return response.data;
+  },
+  
+  updateFarm: async (farmId, farmData) => {
+    const response = await api.put(`/farms/${farmId}`, farmData);
+    return response.data;
+  },
+  
+  deleteFarm: async (farmId) => {
+    const response = await api.delete(`/farms/${farmId}`);
+    return response.data;
   }
 };
+
+// Weather Service
+export const weatherAPI = {
+  getWeather: async (farmId) => {
+    const response = await api.get(`/weather/${farmId}`);
+    return response.data;
+  }
+};
+
+// AI Analysis & Risk Service
+export const analysisAPI = {
+  getLatestAnalysis: async (farmId) => {
+    const response = await api.get(`/analysis/${farmId}/latest`);
+    return response.data;
+  },
+  
+  requestNewAnalysis: async (farmId) => {
+    const response = await api.post(`/analysis/${farmId}/analyze`);
+    return response.data;
+  }
+};
+
+// Chatbot Service
+export const chatAPI = {
+  getHistory: async (farmId) => {
+    const response = await api.get(`/chat/${farmId}/history`);
+    return response.data;
+  },
+  
+  sendMessage: async (farmId, text) => {
+    const formData = new FormData();
+    formData.append('text', text);
+    const response = await api.post(`/chat/${farmId}/message`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+  
+  deleteHistory: async (farmId) => {
+    const response = await api.delete(`/chat/${farmId}/history`);
+    return response.data;
+  }
+};
+
+// Notifications Service
+export const notificationsAPI = {
+  getNotifications: async () => {
+    const response = await api.get('/notifications');
+    return response.data;
+  },
+  
+  markAsRead: async (notificationId) => {
+    const response = await api.post(`/notifications/${notificationId}/read`);
+    return response.data;
+  }
+};
+
+// Activities Service
+export const activitiesAPI = {
+  getActivities: async (farmId) => {
+    const response = await api.get(`/activities/farms/${farmId}/activities`);
+    return response.data;
+  },
+  
+  createActivity: async (farmId, activityData) => {
+    const response = await api.post(`/activities/farms/${farmId}/activities`, activityData);
+    return response.data;
+  }
+};
+
+export default api;

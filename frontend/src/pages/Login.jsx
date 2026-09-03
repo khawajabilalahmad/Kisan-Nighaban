@@ -2,21 +2,38 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Alert from '../components/Alert';
 import GrowingNature from '../components/GrowingNature';
+import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setAlert({ type: 'error', title: 'Login Failed', message: 'Please fill in all fields.' });
       return;
     }
-    // Simulate auth
-    navigate('/');
+    
+    setLoading(true);
+    try {
+      const res = await authAPI.login(email, password);
+      login(res.access_token);
+      navigate('/');
+    } catch (error) {
+      setAlert({ 
+        type: 'error', 
+        title: 'Login Failed', 
+        message: error.response?.data?.detail || 'Invalid email or password'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,9 +92,10 @@ export default function Login() {
 
           <button 
             type="submit"
-            className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-2xl p-4 mt-2 hover:shadow-lg hover:shadow-primary/40 transform hover:-translate-y-0.5 transition-all active:translate-y-0"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-2xl p-4 mt-2 hover:shadow-lg hover:shadow-primary/40 transform hover:-translate-y-0.5 transition-all active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Sign In
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 

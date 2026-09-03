@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
+
+import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -9,13 +10,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setUser({ email: decoded.sub });
-        localStorage.setItem('token', token);
-      } catch (err) {
-        logout();
-      }
+      localStorage.setItem('token', token);
+      // Fetch actual user profile from backend
+      authAPI.getUser()
+        .then(userData => setUser(userData))
+        .catch(err => {
+          console.error("Token invalid or expired", err);
+          logout();
+        });
     } else {
       setUser(null);
       localStorage.removeItem('token');

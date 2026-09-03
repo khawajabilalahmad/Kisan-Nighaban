@@ -10,10 +10,25 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Farms from './pages/Farms';
 import FarmDetail from './pages/FarmDetail';
+import Notifications from './pages/Notifications';
+import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <Toaster 
+        position="bottom-center" 
+        containerStyle={{ bottom: 80 }} 
+        toastOptions={{
+          style: {
+            background: '#333',
+            color: '#fff',
+            borderRadius: '100px',
+            padding: '12px 24px',
+          },
+        }}
+      />
+      <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -26,10 +41,12 @@ export default function App() {
         <Route path="chat" element={<Chatbot />} />
         <Route path="settings" element={<Settings />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
       </Route>
       
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }

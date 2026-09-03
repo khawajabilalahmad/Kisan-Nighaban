@@ -36,9 +36,9 @@ export default function Layout() {
           <button onClick={toggleDarkMode} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors hidden sm:block">
             {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} className="text-slate-600" />}
           </button>
-          <button className="relative p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+          <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
             <Bell size={22} className="text-slate-600 dark:text-slate-300" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-black"></span>
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-black animate-pulse"></span>
           </button>
           <button onClick={() => navigate('/profile')} className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-white dark:border-slate-700 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-shadow ml-1">
              <User size={18} className="text-slate-600 dark:text-slate-300" />

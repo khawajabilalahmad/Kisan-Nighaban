@@ -28,9 +28,10 @@ async def get_chat_history(farm_id: str, db: AsyncSession = Depends(get_db)):
     If no session exists, creates an empty one.
     """
     # Verify farm
-    farm_result = await db.execute(select(Farm).where(Farm.id == farm_id))
-    if not farm_result.scalar_one_or_none():
-        raise HTTPException(status_code=404, detail="Farm not found")
+    if farm_id != "general":
+        farm_result = await db.execute(select(Farm).where(Farm.id == farm_id))
+        if not farm_result.scalar_one_or_none():
+            raise HTTPException(status_code=404, detail="Farm not found")
 
     # Fetch active session
     session_result = await db.execute(select(ChatSession).where(ChatSession.farm_id == farm_id))
@@ -67,10 +68,12 @@ async def send_chat_message(
     Send a message to the AI Mascot. Supports text and an optional image upload.
     """
     # 1. Verify Farm & Fetch Context
-    farm_result = await db.execute(select(Farm).where(Farm.id == farm_id))
-    farm = farm_result.scalar_one_or_none()
-    if not farm:
-        raise HTTPException(status_code=404, detail="Farm not found")
+    farm = None
+    if farm_id != "general":
+        farm_result = await db.execute(select(Farm).where(Farm.id == farm_id))
+        farm = farm_result.scalar_one_or_none()
+        if not farm:
+            raise HTTPException(status_code=404, detail="Farm not found")
 
     # 2. Get or Create Session
     session_result = await db.execute(select(ChatSession).where(ChatSession.farm_id == farm_id))
@@ -107,29 +110,48 @@ async def send_chat_message(
     await db.commit()
     
     # 5. Build AI Context (Weather, Activities, Growth Stage)
-    # We do this quickly to give the bot context
-    try:
-        weather_data = await fetch_weather_forecast(farm.latitude, farm.longitude)
-    except:
-        weather_data = {"error": "Could not fetch current weather."}
+    farm_context = "No specific farm context provided."
+    if farm:
+        try:
+            weather_data = await fetch_weather_forecast(farm.latitude, farm.longitude)
+        except:
+            weather_data = {"error": "Could not fetch current weather."}
+            
+        activity_result = await db.execute(
+            select(FarmActivity)
+            .where(FarmActivity.farm_id == farm_id)
+            .order_by(FarmActivity.date_logged.desc())
+            .limit(3)
+        )
+        activities = [{"activity": a.activity_type, "desc": a.description} for a in activity_result.scalars().all()]
         
-    activity_result = await db.execute(
-        select(FarmActivity)
-        .where(FarmActivity.farm_id == farm_id)
-        .order_by(FarmActivity.date_logged.desc())
-        .limit(3)
-    )
-    activities = [{"activity": a.activity_type, "desc": a.description} for a in activity_result.scalars().all()]
-    
-    growth_stage_day = (date.today() - farm.sowing_date).days
-    
-    farm_context = f"""
-    Farm Name: {farm.name}
-    Crop: {farm.crop_type} (Sowed {growth_stage_day} days ago)
-    Soil: {farm.soil_type}, Water Source: {farm.water_source}
-    Recent Activities: {json.dumps(activities)}
-    Weather Snapshot: {json.dumps(weather_data.get('daily', {}))}
-    """
+        growth_stage_day = (date.today() - farm.sowing_date).days
+        
+        # Fetch latest AI analysis if available
+        from app.models.farm_analysis import FarmAnalysis
+        analysis_result = await db.execute(
+            select(FarmAnalysis)
+            .where(FarmAnalysis.farm_id == farm_id)
+            .order_by(FarmAnalysis.assessed_at.desc())
+            .limit(1)
+        )
+        latest_analysis = analysis_result.scalar_one_or_none()
+        analysis_context = ""
+        if latest_analysis:
+            analysis_context = f"""
+            Latest AI Analysis (Health Score: {latest_analysis.health_score}/100):
+            - Recommendations: {json.dumps(latest_analysis.recommendations)}
+            - Analysis Breakdown: {json.dumps(latest_analysis.analysis_breakdown)}
+            """
+        
+        farm_context = f"""
+        Farm Name: {farm.name}
+        Crop: {farm.crop_type} (Sowed {growth_stage_day} days ago)
+        Soil: {farm.soil_type}, Water Source: {farm.water_source}
+        Recent Activities: {json.dumps(activities)}
+        Weather Snapshot: {json.dumps(weather_data.get('daily', {}))}
+        {analysis_context}
+        """
 
     # 6. Fetch Short-term History (Last 10 messages)
     history_result = await db.execute(
@@ -172,3 +194,19 @@ async def send_chat_message(
 
     # Return the mascot's reply
     return model_msg
+
+@router.delete("/{farm_id}/history")
+async def delete_chat_history(farm_id: str, db: AsyncSession = Depends(get_db)):
+    """
+    Deletes the chat history for a specific farm (or general chat).
+    """
+    # Fetch active session
+    session_result = await db.execute(select(ChatSession).where(ChatSession.farm_id == farm_id))
+    chat_session = session_result.scalar_one_or_none()
+    
+    if chat_session:
+        # Delete all messages for this session
+        await db.execute(ChatMessage.__table__.delete().where(ChatMessage.session_id == chat_session.id))
+        await db.commit()
+    
+    return {"message": "Chat history deleted successfully"}

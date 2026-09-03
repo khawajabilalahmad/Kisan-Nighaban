@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @config "../tailwind.config.js";
 
 /* Enable class-based dark mode toggle in Tailwind v4 */

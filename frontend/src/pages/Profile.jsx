@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, LogOut, ChevronDown, ChevronRight, Edit3, ShieldCheck, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [name, setName] = useState('Ali Khan');
-  const [phone, setPhone] = useState('0300 1234567');
-  const [email, setEmail] = useState('ali.khan@example.com');
+  const { user, logout } = useAuth();
+  
+  const name = user?.full_name || 'Loading...';
+  const phone = user?.mobile_number || 'Loading...';
+  const email = user?.email || 'Loading...';
   
   const [expandedSection, setExpandedSection] = useState(null); // 'personal' or 'privacy'
   const [showEditModal, setShowEditModal] = useState(false);
 
   const handleLogout = () => {
-    // In a real app, clear tokens here
+    logout();
     navigate('/login');
   };
 
@@ -143,7 +147,13 @@ export default function Profile() {
 
             {/* Modal Footer (Fixed) */}
             <div className="p-6 pt-4 border-t border-slate-100 dark:border-white/5 shrink-0 bg-slate-50/50 dark:bg-black/20">
-              <button onClick={() => setShowEditModal(false)} className="w-full bg-primary hover:bg-primary-dark text-white font-bold rounded-xl py-3 transition-colors">
+              <button 
+                onClick={() => {
+                  setShowEditModal(false);
+                  toast.success("Profile updated successfully!");
+                }} 
+                className="w-full bg-primary hover:bg-primary-dark text-white font-bold rounded-xl py-3 transition-colors"
+              >
                 Save Changes
               </button>
             </div>

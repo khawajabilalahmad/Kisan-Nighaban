@@ -2,22 +2,45 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Alert from '../components/Alert';
 import GrowingNature from '../components/GrowingNature';
+import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/api';
 
 export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
   const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password) {
+    if (!name || !email || !mobileNumber || !password) {
       setAlert({ type: 'error', title: 'Signup Failed', message: 'Please fill in all fields.' });
       return;
     }
-    // Simulate auth
-    navigate('/');
+    
+    setLoading(true);
+    try {
+      // 1. Register User
+      await authAPI.register({ full_name: name, email, mobile_number: mobileNumber, password });
+      
+      // 2. Auto-login after successful registration
+      const res = await authAPI.login(email, password);
+      login(res.access_token);
+      
+      navigate('/');
+    } catch (error) {
+      setAlert({ 
+        type: 'error', 
+        title: 'Signup Failed', 
+        message: error.response?.data?.detail || 'Could not create account'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -72,6 +95,17 @@ export default function Signup() {
           </div>
           
           <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Mobile Number</label>
+            <input 
+              type="tel" 
+              className="w-full bg-white/50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
+              placeholder="03001234567"
+              value={mobileNumber}
+              onChange={(e) => setMobileNumber(e.target.value)}
+            />
+          </div>
+          
+          <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Password</label>
             <input 
               type="password" 
@@ -84,9 +118,10 @@ export default function Signup() {
 
           <button 
             type="submit"
-            className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-2xl p-4 mt-2 hover:shadow-lg hover:shadow-primary/40 transform hover:-translate-y-0.5 transition-all active:translate-y-0"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-2xl p-4 mt-2 hover:shadow-lg hover:shadow-primary/40 transform hover:-translate-y-0.5 transition-all active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Create Account
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
