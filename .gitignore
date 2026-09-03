@@ -54,3 +54,15 @@ yarn-error.log*
 *~
 .DS_Store
 wiki-pages/
+
+# Agents
+.agents/
+.agent/
+
+# AI Agents
+.agents/
+.agent/
+.gemini/
+.openai/
+.anthropic/
+.groq/

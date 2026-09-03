@@ -6,3 +6,8 @@ httpx
 pydantic-settings
 python-dotenv
 google-genai
+python-jose
+bcrypt
+email-validator
+fastapi-mail
+python-multipart

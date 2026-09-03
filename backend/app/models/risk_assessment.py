@@ -18,6 +18,7 @@ class RiskAssessment(Base):
     recommendations = Column(JSON, nullable=False)
     weather_snapshot = Column(JSON, nullable=False)
     growth_stage = Column(String, nullable=False)
+    mascot_daily_tip = Column(String, nullable=True)
 
     # Relationship back to farm
     farm = relationship("Farm", back_populates="risk_assessments")
