@@ -108,10 +108,13 @@ export const chatAPI = {
     return response.data;
   },
   
-  sendMessage: async (farmId, text, language = 'en') => {
+  sendMessage: async (farmId, text, language = 'en', imageFile = null) => {
     const formData = new FormData();
-    formData.append('text', text);
+    formData.append('text', text || ' ');
     formData.append('language', language);
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
     const response = await api.post(`/chat/${farmId}/message`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

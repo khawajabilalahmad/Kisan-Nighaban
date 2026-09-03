@@ -82,13 +82,13 @@ export default function Login() {
         />
       )}
 
-      <div className="px-6 relative z-10 pt-12 pb-20 w-full max-w-sm mx-auto">
-        <div className="text-center mb-8">
-          <div className="w-32 h-32 mx-auto flex items-center justify-center mb-6">
+      <div className="px-6 relative z-10 pt-4 pb-20 w-full max-w-sm mx-auto">
+        <div className="text-center mb-4">
+          <div className="w-64 h-64 mx-auto flex items-center justify-center mb-2">
             <img src="/logo.png" alt="Kisan Nighaban Logo" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
           <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-300 tracking-tight">{t('auth.welcome_back')}</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">{t('auth.resume_journey')}</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">{t('auth.resume_journey')}</p>
         </div>
 
         {/* Glassmorphism Form Card */}
