@@ -29,3 +29,5 @@ class Farm(Base):
     chat_sessions = relationship("ChatSession", back_populates="farm", cascade="all, delete-orphan")
     # Relationship to daily tracking logs
     activities = relationship("FarmActivity", back_populates="farm", cascade="all, delete-orphan")
+    # Relationship to risk assessments
+    risk_assessments = relationship("RiskAssessment", back_populates="farm", cascade="all, delete-orphan")
