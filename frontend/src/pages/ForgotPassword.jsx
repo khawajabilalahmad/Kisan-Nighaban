@@ -21,7 +21,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center relative font-sans">
+    <div dir="ltr" className="flex-1 flex flex-col justify-center relative font-sans">
 
       {alert && (
         <Alert 

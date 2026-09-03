@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, LogOut, ChevronDown, ChevronRight, Edit3, ShieldCheck, X, ShieldAlert, Lock, HelpCircle, Map } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { farmsAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
 export default function Profile() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   
   const name = user?.full_name || 'Loading...';
-  const phone = user?.mobile_number || 'Loading...';
   const email = user?.email || 'Loading...';
   
   const [expandedSection, setExpandedSection] = useState(null); // 'personal' or 'privacy'
@@ -40,7 +41,7 @@ export default function Profile() {
 
   return (
     <div className="flex-1 flex flex-col p-6 space-y-6 pt-4 overflow-y-auto pb-32">
-      <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight mb-2">Profile</h2>
+      <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight mb-2">{t('profile.title')}</h2>
 
       {/* Profile Card */}
       <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 transition-colors duration-500 text-center relative">
@@ -53,14 +54,13 @@ export default function Profile() {
         </div>
         
         <h3 className="text-xl font-bold text-slate-800 dark:text-white">{name}</h3>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">{phone}</p>
         
         <div className="mt-6 flex justify-center gap-2">
           <span className="px-3 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 rounded-full text-xs font-bold uppercase tracking-wide border border-green-200 dark:border-green-800/50 flex items-center gap-1">
-            <ShieldCheck size={14} /> Verified Farmer
+            <ShieldCheck size={14} /> {t('profile.verified_farmer')}
           </span>
           <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full text-xs font-bold uppercase tracking-wide border border-blue-200 dark:border-blue-800/50 flex items-center gap-1">
-            {totalFarms} {totalFarms === 1 ? 'Farm' : 'Farms'}
+            {totalFarms} {t('profile.farm_count')}
           </span>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function Profile() {
               <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <User size={18} className="text-blue-500" />
               </div>
-              <span className="font-semibold text-slate-700 dark:text-slate-300">Personal Information</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">{t('profile.personal_info')}</span>
             </div>
             {expandedSection === 'personal' ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
           </button>
@@ -83,19 +83,15 @@ export default function Profile() {
           {expandedSection === 'personal' && (
             <div className="p-5 pt-0 bg-white/30 dark:bg-black/20 flex flex-col space-y-4">
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Full Name</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t('profile.name')}</p>
                 <p className="text-slate-800 dark:text-slate-200 font-medium">{name}</p>
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</p>
-                <p className="text-slate-800 dark:text-slate-200 font-medium">{phone}</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Email Address</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t('profile.email')}</p>
                 <p className="text-slate-800 dark:text-slate-200 font-medium">{email}</p>
               </div>
               <button onClick={() => setShowEditModal(true)} className="flex items-center gap-2 text-primary font-bold text-sm mt-2 hover:opacity-80">
-                <Edit3 size={16} /> Edit Details
+                <Edit3 size={16} /> {t('profile.edit_details')}
               </button>
             </div>
           )}
@@ -107,7 +103,7 @@ export default function Profile() {
             <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
               <Map size={18} className="text-green-500" />
             </div>
-            <span className="font-semibold text-slate-700 dark:text-slate-300">Manage Farms</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300">{t('profile.manage_farms')}</span>
           </div>
           <ChevronRight size={20} className="text-slate-400" />
         </button>
@@ -119,7 +115,7 @@ export default function Profile() {
               <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                 <Lock size={18} className="text-purple-500" />
               </div>
-              <span className="font-semibold text-slate-700 dark:text-slate-300">Privacy & Security</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">{t('profile.privacy')}</span>
             </div>
             {expandedSection === 'privacy' ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
           </button>
@@ -129,9 +125,9 @@ export default function Profile() {
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30 flex items-start gap-4">
                 <ShieldAlert size={24} className="text-blue-500 shrink-0 mt-1" />
                 <div>
-                  <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-1">Your Data is Secure</h4>
+                  <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-1">{t('profile.data_secure')}</h4>
                   <p className="text-blue-800/80 dark:text-blue-200/80 text-sm font-medium leading-relaxed">
-                    We do not share your farm analytics, yields, or personal contact info with any third parties. Your agricultural data is encrypted and strictly confidential.
+                    {t('profile.data_desc')}
                   </p>
                 </div>
               </div>
@@ -139,7 +135,7 @@ export default function Profile() {
                 onClick={() => toast.success("Password reset link sent to your email!")}
                 className="w-full flex items-center justify-center gap-2 py-3 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
-                Change Password
+                {t('profile.change_password')}
               </button>
             </div>
           )}
@@ -152,7 +148,7 @@ export default function Profile() {
         className="w-full bg-white/60 dark:bg-black/40 backdrop-blur-md p-4 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-red-100 dark:border-red-900/30 flex items-center justify-center gap-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-300"
       >
         <LogOut size={20} />
-        <span className="font-bold">Log Out</span>
+        <span className="font-bold">{t('profile.logout')}</span>
       </button>
 
       {/* Edit Profile Modal */}
@@ -162,7 +158,7 @@ export default function Profile() {
             
             {/* Modal Header */}
             <div className="p-6 pb-4 flex justify-between items-center border-b border-slate-100 dark:border-white/5 shrink-0">
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Edit Profile</h3>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">{t('profile.edit_profile')}</h3>
               <button onClick={() => setShowEditModal(false)} className="p-2 -mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                 <X size={20} />
               </button>
@@ -171,15 +167,11 @@ export default function Profile() {
             {/* Modal Body (Scrollable) */}
             <div className="p-6 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Full Name</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{t('profile.name')}</label>
                 <input type="text" defaultValue={name} onChange={(e) => setName(e.target.value)} className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Phone Number</label>
-                <input type="tel" defaultValue={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{t('profile.email')}</label>
                 <input type="email" defaultValue={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
             </div>
@@ -193,7 +185,7 @@ export default function Profile() {
                 }} 
                 className="w-full bg-primary hover:bg-primary-dark text-white font-bold rounded-xl py-3 transition-colors"
               >
-                Save Changes
+                {t('profile.save')}
               </button>
             </div>
           </div>

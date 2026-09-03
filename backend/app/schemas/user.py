@@ -4,7 +4,7 @@ from typing import Optional
 
 class UserBase(BaseModel):
     email: EmailStr = Field(..., example="ali@example.com")
-    mobile_number: str = Field(..., example="+923001234567")
+    mobile_number: Optional[str] = Field(None, example="+923001234567")
     full_name: str = Field(..., example="Ali Khan")
 
 class UserCreate(UserBase):

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.post("/{farm_id}/analyze", response_model=FarmAnalysisOutput)
-async def analyze_farm(farm_id: str, db: AsyncSession = Depends(get_db)):
+async def analyze_farm(farm_id: str, lang: str = "en", db: AsyncSession = Depends(get_db)):
     """
     Trigger a new analysis for a farm.
     Fetches weather, calculates growth stage, calls AI (with fallback), and saves to DB.
@@ -80,7 +80,8 @@ async def analyze_farm(farm_id: str, db: AsyncSession = Depends(get_db)):
             growth_stage=growth_stage,
             growth_stage_day=growth_stage_day,
             farm_details=farm_details,
-            recent_activities=recent_activities
+            recent_activities=recent_activities,
+            language=lang
         )
     except Exception as e:
         logger.warning(f"AI assessment failed: {e}. Falling back to rule-based logic.")

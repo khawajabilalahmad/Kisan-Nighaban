@@ -36,6 +36,11 @@ export const authAPI = {
     return response.data;
   },
   
+  googleLogin: async (token) => {
+    const response = await api.post('/auth/google', { token });
+    return response.data;
+  },
+
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
     return response.data;
@@ -90,8 +95,8 @@ export const analysisAPI = {
     return response.data;
   },
   
-  requestNewAnalysis: async (farmId) => {
-    const response = await api.post(`/analysis/${farmId}/analyze`);
+  requestNewAnalysis: async (farmId, language = 'en') => {
+    const response = await api.post(`/analysis/${farmId}/analyze?lang=${language}`);
     return response.data;
   }
 };
@@ -103,7 +108,7 @@ export const chatAPI = {
     return response.data;
   },
   
-  sendMessage: async (farmId, text, language = 'english') => {
+  sendMessage: async (farmId, text, language = 'en') => {
     const formData = new FormData();
     formData.append('text', text);
     formData.append('language', language);

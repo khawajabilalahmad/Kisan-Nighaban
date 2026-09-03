@@ -19,3 +19,22 @@
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
 }
+
+@layer utilities {
+  .urdu-font {
+    font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', 'Nafees Regular', Arial, sans-serif;
+    line-height: 1.8;
+  }
+}
+
+@layer base {
+  /* Force input fields to always be Left-to-Right since users type Roman Urdu */
+  input[type="text"], 
+  input[type="number"], 
+  input[type="email"], 
+  input[type="password"], 
+  textarea {
+    direction: ltr;
+    text-align: left;
+  }
+}

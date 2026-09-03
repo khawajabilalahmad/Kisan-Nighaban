@@ -43,9 +43,9 @@ export default function Settings() {
             <input 
               type="radio" 
               name="language" 
-              value="english" 
-              checked={language === 'english'} 
-              onChange={() => changeLanguage('english')}
+              value="en" 
+              checked={language === 'en'} 
+              onChange={() => changeLanguage('en')}
               className="w-5 h-5 text-primary focus:ring-primary dark:border-slate-600"
             />
           </label>
@@ -55,9 +55,9 @@ export default function Settings() {
             <input 
               type="radio" 
               name="language" 
-              value="roman-urdu" 
-              checked={language === 'roman-urdu'} 
-              onChange={() => changeLanguage('roman-urdu')}
+              value="ru" 
+              checked={language === 'ru'} 
+              onChange={() => changeLanguage('ru')}
               className="w-5 h-5 text-primary focus:ring-primary dark:border-slate-600"
             />
           </label>
@@ -67,9 +67,9 @@ export default function Settings() {
             <input 
               type="radio" 
               name="language" 
-              value="urdu" 
-              checked={language === 'urdu'} 
-              onChange={() => changeLanguage('urdu')}
+              value="ur" 
+              checked={language === 'ur'} 
+              onChange={() => changeLanguage('ur')}
               className="w-5 h-5 text-primary focus:ring-primary dark:border-slate-600"
             />
           </label>
@@ -113,7 +113,7 @@ export default function Settings() {
               <span className="font-medium text-sm">{t('settings.contact')}</span>
             </a>
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">For inquiries, please contact us at:</p>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{t('settings.inquiries')}</p>
               <a href="mailto:contact@jshub.com" className="text-blue-600 dark:text-blue-400 font-bold hover:underline block mt-0.5">
                 contact@jshub.com
               </a>
