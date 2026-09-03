@@ -11,3 +11,4 @@ bcrypt
 email-validator
 fastapi-mail
 python-multipart
+apscheduler

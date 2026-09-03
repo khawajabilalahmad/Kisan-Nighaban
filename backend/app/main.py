@@ -4,13 +4,19 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.database import engine, Base
-from app.api.routers import farms, weather, analysis, auth, activities
+from app.api.routers import farms, weather, analysis, auth, activities, notifications
+
+from app.tasks.scheduler import start_scheduler
 
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize Database Tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        
+    # Start the background proactive analysis scheduler
+    start_scheduler()
+    
     yield
     # Cleanup
     await engine.dispose()
@@ -31,6 +37,7 @@ app.include_router(farms.router, prefix="/api/farms", tags=["Farms"])
 app.include_router(activities.router, prefix="/api/activities", tags=["Activities"])
 app.include_router(analysis.router, prefix="/api/analysis", tags=["Analysis"])
 app.include_router(weather.router, prefix="/api/weather", tags=["Weather"])
+app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
 
 @app.get("/api/health")
 async def health_check():
