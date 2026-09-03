@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CloudLightning, Droplets, Thermometer, Wind, CheckCircle2, AlertTriangle, Info, BellOff } from 'lucide-react';
+import { ArrowLeft, CloudLightning, Droplets, Thermometer, Wind, CheckCircle2, AlertTriangle, Info, BellOff, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { notificationsAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
 export default function Notifications() {
   const navigate = useNavigate();
@@ -37,6 +38,18 @@ export default function Notifications() {
     }
   };
 
+  const handleDelete = async (id, e) => {
+    e.stopPropagation(); // Prevent trigger click on the notification card
+    try {
+      await notificationsAPI.deleteNotification(id);
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      toast.success("Notification deleted!");
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+      toast.error("Failed to delete notification");
+    }
+  };
+
   const getStyleForType = (type) => {
     switch (type) {
       case 'danger':
@@ -68,7 +81,7 @@ export default function Notifications() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+    <div className="flex-1 flex flex-col h-full bg-transparent overflow-y-auto">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-4 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -83,7 +96,7 @@ export default function Notifications() {
       </div>
 
       {/* List */}
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-4 pb-28">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-slate-400">
             <BellOff size={48} className="mb-4 opacity-50" />
@@ -113,13 +126,21 @@ export default function Notifications() {
                     <h3 className={`font-bold ${notif.is_read ? 'text-slate-700 dark:text-slate-300' : 'text-slate-900 dark:text-white'}`}>
                       {notif.title}
                     </h3>
-                    <span className="text-xs font-medium text-slate-400 whitespace-nowrap ml-2">
-                      {new Date(notif.created_at).toLocaleDateString()}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-medium text-slate-400 whitespace-nowrap">
+                        {new Date(notif.created_at).toLocaleDateString()}
+                      </span>
+                      <button 
+                        onClick={(e) => handleDelete(notif.id, e)}
+                        className="text-slate-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                   
                   <p className={`text-sm mb-2 ${notif.is_read ? 'text-slate-500 dark:text-slate-400' : 'text-slate-600 dark:text-slate-300'}`}>
-                    {notif.message}
+                    {notif.message_en || notif.message}
                   </p>
                   
                   {notif.farm_id && (
@@ -130,7 +151,7 @@ export default function Notifications() {
                 </div>
                 
                 {!notif.is_read && (
-                  <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 shrink-0"></div>
                 )}
               </div>
             </div>
