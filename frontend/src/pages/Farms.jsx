@@ -115,7 +115,7 @@ export default function Farms() {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6 space-y-6 pt-4 overflow-y-auto pb-24">
+    <div className="flex-1 flex flex-col p-6 space-y-6 pt-4 overflow-y-auto pb-32">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">My Farms</h2>
       </div>
