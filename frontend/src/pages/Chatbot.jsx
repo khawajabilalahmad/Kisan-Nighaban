@@ -53,7 +53,7 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const response = await chatAPI.sendMessage(farmId, userMsg.content);
+      const response = await chatAPI.sendMessage(farmId, userMsg.content, language);
       // The backend returns the ChatMessage object which has 'content'
       const botMsg = { 
         id: response.id || (Date.now() + 1).toString(), 

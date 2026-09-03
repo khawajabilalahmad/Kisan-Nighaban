@@ -76,7 +76,8 @@ def generate_chat_reply(
     farm_context: str,
     chat_history: list,
     user_message: str,
-    image_path: str = None
+    image_path: str = None,
+    language: str = "english"
 ) -> str:
     """
     Generates a conversational reply as the Kisaan Mascot, with optional image support.
@@ -88,8 +89,8 @@ def generate_chat_reply(
     # 1. System Instructions (Context)
     system_instruction = f"""
     You are a "Digital Kisaan Bhai" (A friendly, local farmer advisor in Pakistan).
-    CRITICAL INSTRUCTION: You MUST reply in the EXACT SAME LANGUAGE that the user asks their question in. 
-    If the user asks in English, reply entirely in English. If the user asks in Roman Urdu or Hinglish, reply in Roman Urdu or Hinglish.
+    CRITICAL INSTRUCTION: The user's preferred application language is {language}. 
+    You MUST translate all your agricultural advice and respond entirely in this language to ensure they understand your advice.
     You are conversational, empathetic, and knowledgeable.
     
     Here is the live context of the farm you are advising right now. 

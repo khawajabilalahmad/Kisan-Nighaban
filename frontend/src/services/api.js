@@ -103,9 +103,10 @@ export const chatAPI = {
     return response.data;
   },
   
-  sendMessage: async (farmId, text) => {
+  sendMessage: async (farmId, text, language = 'english') => {
     const formData = new FormData();
     formData.append('text', text);
+    formData.append('language', language);
     const response = await api.post(`/chat/${farmId}/message`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
