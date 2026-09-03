@@ -1,11 +1,36 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Droplets, Thermometer, Wind, AlertTriangle, Trash2, Edit2, Activity } from 'lucide-react';
+import { ArrowLeft, Droplets, Thermometer, Wind, AlertTriangle, Trash2, Edit2, Activity, X, Navigation, MapPin } from 'lucide-react';
+import MapPicker from '../components/MapPicker';
 
 export default function FarmDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+  
+  const [locationName, setLocationName] = useState('Faisalabad, Punjab'); // Dummy default
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handleGetCurrentLocation = () => {
+    setIsLocating(true);
+    setTimeout(() => {
+      setLocationName('Current Location (GPS)');
+      setIsLocating(false);
+    }, 1500);
+  };
+
+  const handleChooseFromMap = () => {
+    setShowMapModal(true);
+  };
+
+  const handleConfirmMapLocation = (position) => {
+    if (position) {
+      setLocationName(`${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`);
+    }
+    setShowMapModal(false);
+  };
 
   // Dummy data based on ID
   const farm = {
@@ -39,7 +64,7 @@ export default function FarmDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+          <button onClick={() => setShowEditModal(true)} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
             <Edit2 size={20} className="text-slate-600 dark:text-slate-300" />
           </button>
           <button onClick={() => setShowDeleteModal(true)} className="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
@@ -148,6 +173,113 @@ export default function FarmDetail() {
               >
                 Delete
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Farm Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-0 animate-in fade-in duration-300">
+          <div className="w-full max-w-sm bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl relative animate-in slide-in-from-bottom-10 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300 flex flex-col max-h-[75vh] mb-20 overflow-hidden">
+            
+            {/* Modal Header */}
+            <div className="p-6 pb-4 flex justify-between items-center border-b border-slate-100 dark:border-white/5 shrink-0">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Edit Farm</h3>
+              <button onClick={() => setShowEditModal(false)} className="p-2 -mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body (Scrollable) */}
+            <div className="p-6 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Farm Name</label>
+                <input type="text" defaultValue={farm.name} className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Crop Type</label>
+                <input type="text" defaultValue={farm.crop} className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Area</label>
+                <input type="text" defaultValue={farm.area} className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Water Source</label>
+                  <select defaultValue="canal" className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary appearance-none">
+                    <option value="canal">Canal</option>
+                    <option value="tube_well">Tube Well</option>
+                    <option value="rain_fed">Rain-fed</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Soil Type</label>
+                  <select defaultValue="loam" className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary appearance-none">
+                    <option value="loam">Loam</option>
+                    <option value="clay">Clay</option>
+                    <option value="sandy">Sandy</option>
+                    <option value="silt">Silt</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* Location Picker Section */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Farm Location</label>
+                <input 
+                  type="text" 
+                  value={locationName}
+                  onChange={(e) => setLocationName(e.target.value)}
+                  className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary mb-2" 
+                />
+                
+                <div className="flex gap-2">
+                  <button 
+                    onClick={handleGetCurrentLocation}
+                    disabled={isLocating}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30 rounded-lg text-xs font-bold transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/40 disabled:opacity-50"
+                  >
+                    <Navigation size={14} className={isLocating ? 'animate-spin' : ''} />
+                    {isLocating ? 'Locating...' : 'Current Location'}
+                  </button>
+                  <button 
+                    onClick={handleChooseFromMap}
+                    disabled={isLocating}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-lg text-xs font-bold transition-colors hover:bg-slate-200 dark:hover:bg-white/10"
+                  >
+                    <MapPin size={14} />
+                    Choose on Map
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer (Fixed) */}
+            <div className="p-6 pt-4 border-t border-slate-100 dark:border-white/5 shrink-0 bg-slate-50/50 dark:bg-black/20">
+              <button onClick={() => setShowEditModal(false)} className="w-full bg-primary hover:bg-primary-dark text-white font-bold rounded-xl py-3 transition-colors">
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Real Map Modal */}
+      {showMapModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col">
+            <div className="p-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-bold text-slate-800 dark:text-white">Pin Location</h3>
+              <button onClick={() => setShowMapModal(false)} className="p-2 -mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50">
+              <MapPicker onConfirm={handleConfirmMapLocation} />
             </div>
           </div>
         </div>

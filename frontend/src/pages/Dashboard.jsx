@@ -81,7 +81,7 @@ export default function Dashboard() {
       </div>
 
       {/* Original Sunflower Mascot Companion */}
-      <div className="fixed bottom-[64px] right-4 z-40 scale-50 origin-bottom-right" onClick={handleDismissAlert}>
+      <div className="fixed bottom-[64px] right-2 z-40 scale-[0.65] origin-bottom-right" onClick={handleDismissAlert}>
         
         {/* Simple Alert Bubble layered over the mascot */}
         {mascotState === 'alert' && alertMsg && (

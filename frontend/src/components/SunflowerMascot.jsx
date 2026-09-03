@@ -193,7 +193,7 @@ export default function SunflowerMascot() {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className={`absolute top-[-40px] left-[-120px] w-[180px] bg-white text-[#1F4529] py-3 px-4 rounded-2xl rounded-br-sm shadow-[0_10px_25px_rgba(0,0,0,0.15)] font-sans text-[13px] font-medium leading-[1.4] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none after:content-[''] after:absolute after:-bottom-2 after:right-4 after:border-[8px] after:border-t-white after:border-x-transparent after:border-b-transparent ${showTooltip ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2.5 scale-90'}`}>
+        <div className={`absolute top-[-40px] left-[-120px] w-[220px] bg-white text-[#1F4529] py-5 px-6 rounded-2xl rounded-br-sm shadow-[0_10px_25px_rgba(0,0,0,0.15)] font-sans text-[16px] font-bold leading-[1.4] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none after:content-[''] after:absolute after:-bottom-2 after:right-4 after:border-[8px] after:border-t-white after:border-x-transparent after:border-b-transparent ${showTooltip ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2.5 scale-90'}`}>
           {tooltipText}
         </div>
 
