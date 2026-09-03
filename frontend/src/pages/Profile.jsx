@@ -12,7 +12,6 @@ export default function Profile() {
   const { t } = useTranslation();
   
   const name = user?.full_name || 'Loading...';
-  const phone = user?.mobile_number || 'Loading...';
   const email = user?.email || 'Loading...';
   
   const [expandedSection, setExpandedSection] = useState(null); // 'personal' or 'privacy'
@@ -55,7 +54,6 @@ export default function Profile() {
         </div>
         
         <h3 className="text-xl font-bold text-slate-800 dark:text-white">{name}</h3>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">{phone}</p>
         
         <div className="mt-6 flex justify-center gap-2">
           <span className="px-3 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 rounded-full text-xs font-bold uppercase tracking-wide border border-green-200 dark:border-green-800/50 flex items-center gap-1">
@@ -87,10 +85,6 @@ export default function Profile() {
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t('profile.name')}</p>
                 <p className="text-slate-800 dark:text-slate-200 font-medium">{name}</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t('profile.phone')}</p>
-                <p className="text-slate-800 dark:text-slate-200 font-medium">{phone}</p>
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t('profile.email')}</p>
@@ -175,10 +169,6 @@ export default function Profile() {
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{t('profile.name')}</label>
                 <input type="text" defaultValue={name} onChange={(e) => setName(e.target.value)} className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{t('profile.phone')}</label>
-                <input type="tel" defaultValue={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{t('profile.email')}</label>

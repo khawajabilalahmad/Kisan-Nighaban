@@ -164,5 +164,28 @@
     "clay": "Clay",
     "sandy": "Sandy",
     "silt": "Silt"
+  },
+  "auth": {
+    "join_us": "Join Us",
+    "start_journey": "Start your smart farming journey.",
+    "full_name": "Full Name",
+    "email": "Email Address",
+    "password": "Password",
+    "create_account": "Create Account",
+    "creating": "Creating Account...",
+    "continue_with": "Or continue with",
+    "already_have": "Already have an account?",
+    "sign_in": "Sign In",
+    "welcome_back": "Welcome Back",
+    "resume_journey": "Resume your smart farming journey.",
+    "signing_in": "Signing in...",
+    "dont_have": "Don't have an account?",
+    "sign_up": "Sign Up",
+    "login_failed": "Login Failed",
+    "signup_failed": "Signup Failed",
+    "fill_fields": "Please fill in all fields.",
+    "invalid_credentials": "Invalid email or password",
+    "google_failed": "Could not sign in with Google.",
+    "forgot": "Forgot?"
   }
 }

@@ -167,5 +167,28 @@
     "clay": "Chikni",
     "sandy": "Raitli",
     "silt": "Bhal"
+  },
+  "auth": {
+    "join_us": "Shamil Hon",
+    "start_journey": "Apna smart farming safar shuru karein.",
+    "full_name": "Pura Naam",
+    "email": "Email Address",
+    "password": "Password",
+    "create_account": "Account Banayen",
+    "creating": "Account ban raha hai...",
+    "continue_with": "Ya is ke zariye jari rakhein",
+    "already_have": "Pehle se account hai?",
+    "sign_in": "Sign In",
+    "welcome_back": "Khushamdeed",
+    "resume_journey": "Apna smart farming safar jari rakhein.",
+    "signing_in": "Sign in ho raha hai...",
+    "dont_have": "Account nahi hai?",
+    "sign_up": "Sign Up",
+    "login_failed": "Login Nakam",
+    "signup_failed": "Signup Nakam",
+    "fill_fields": "Baraye meharbani tamam fields pur karein.",
+    "invalid_credentials": "Ghalat email ya password",
+    "google_failed": "Google ke zariye sign in nahi ho saka.",
+    "forgot": "Bhool gaye?"
   }
 }
