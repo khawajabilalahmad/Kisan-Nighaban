@@ -29,24 +29,20 @@ export default function App() {
         }}
       />
       <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-
-      {/* Protected Routes inside the Mobile Layout */}
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="farms" element={<Farms />} />
-        <Route path="farms/:id" element={<FarmDetail />} />
-        <Route path="chat" element={<Chatbot />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="notifications" element={<Notifications />} />
-      </Route>
-      
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="/" element={<Layout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route index element={<Dashboard />} />
+          <Route path="farms" element={<Farms />} />
+          <Route path="farms/:id" element={<FarmDetail />} />
+          <Route path="chat" element={<Chatbot />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="notifications" element={<Notifications />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
   );
 }

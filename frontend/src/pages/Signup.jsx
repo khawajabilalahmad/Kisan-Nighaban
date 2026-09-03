@@ -44,10 +44,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="h-screen flex flex-col justify-center relative overflow-hidden font-sans">
-      
-      {/* Animated Background Graphics */}
-      <GrowingNature />
+    <div className="flex-1 flex flex-col justify-center relative font-sans">
 
       {alert && (
         <Alert 

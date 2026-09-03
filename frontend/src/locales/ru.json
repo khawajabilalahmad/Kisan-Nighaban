@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Home",
+    "farms": "Farms",
+    "chatbot": "Chatbot",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "total_farms": "Total Farms",
+    "your_farms": "Your Farms",
+    "view_all": "View All",
+    "greeting": "Salam",
+    "healthy_crops": "Healthy Crops",
+    "pending_tasks": "Pending Tasks",
+    "quick_actions": "Quick Actions",
+    "add_farm": "Add New Farm",
+    "weather": "Weather"
+  },
+  "settings": {
+    "title": "Settings",
+    "app_language": "App Language",
+    "appearance": "Appearance",
+    "dark_mode": "Dark Mode",
+    "support": "Help & Support",
+    "contact": "Contact Support"
+  }
+}

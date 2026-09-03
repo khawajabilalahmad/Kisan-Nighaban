@@ -1,22 +1,25 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import i18n from '../i18n';
 
 const LanguageContext = createContext();
 
 export const useLanguage = () => useContext(LanguageContext);
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('roman-urdu');
+  const [language, setLanguage] = useState('english');
 
   useEffect(() => {
     const saved = localStorage.getItem('kisan_lang');
     if (saved) {
       setLanguage(saved);
+      i18n.changeLanguage(saved);
     }
   }, []);
 
   const changeLanguage = (lang) => {
     setLanguage(lang);
     localStorage.setItem('kisan_lang', lang);
+    i18n.changeLanguage(lang);
   };
 
   const getInitialGreeting = () => {

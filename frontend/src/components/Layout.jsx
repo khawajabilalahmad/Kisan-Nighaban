@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, MessageCircle, Settings, Bell, Moon, Sun, User, Map } from 'lucide-react';
+import { Sun, Moon, Bell, User, Home, Map, MessageCircle, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import SunflowerMascot from './SunflowerMascot';
 
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname;
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { t } = useTranslation();
+  
+  // Manage dark mode state locally for UI reactivity
+  const [isDarkMode, setIsDarkMode] = useState(
+    document.documentElement.classList.contains('dark')
+  );
+
+  const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(path);
 
   useEffect(() => {
     // Check initial dark mode preference
@@ -47,6 +55,9 @@ export default function Layout() {
       
       {/* Immersive Farm Scene Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Base Layer (Shows up on auth pages where there is no navbar) */}
+        <div className="absolute inset-x-0 bottom-0 h-[64px] bg-[#1a4a2b] dark:bg-black z-0"></div>
+
         {/* Sun (Light Mode) */}
         <div className="absolute top-10 right-10 w-24 h-24 bg-yellow-300 rounded-full blur-[2px] opacity-80 shadow-[0_0_60px_rgb(253,224,71)] dark:hidden transition-opacity duration-1000"></div>
         
@@ -202,23 +213,27 @@ export default function Layout() {
         </div>
 
         {/* Background Flowers in foreground */}
-        <div className="absolute bottom-[80px] left-[40%] opacity-30 dark:opacity-10 transform scale-[0.3]">
-          <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <rect x="47" y="50" width="6" height="50" fill="#15803d" />
-            <circle cx="50" cy="50" r="15" fill="#facc15" />
-            <circle cx="50" cy="30" r="12" fill="#ef4444" />
-            <circle cx="70" cy="50" r="12" fill="#ef4444" />
-            <circle cx="50" cy="70" r="12" fill="#ef4444" />
-            <circle cx="30" cy="50" r="12" fill="#ef4444" />
-          </svg>
-        </div>
-        <div className="absolute bottom-[70px] left-[50%] opacity-30 dark:opacity-10 transform scale-[0.25]">
-          <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <rect x="47" y="50" width="6" height="50" fill="#15803d" />
-            <circle cx="50" cy="50" r="15" fill="#facc15" />
-            <circle cx="50" cy="30" r="12" fill="#a855f7" />
-          </svg>
-        </div>
+        {!isAuthPage && (
+          <>
+            <div className="absolute bottom-[80px] left-[40%] opacity-30 dark:opacity-10 transform scale-[0.3]">
+              <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <rect x="47" y="50" width="6" height="50" fill="#15803d" />
+                <circle cx="50" cy="50" r="15" fill="#facc15" />
+                <circle cx="50" cy="30" r="12" fill="#ef4444" />
+                <circle cx="70" cy="50" r="12" fill="#ef4444" />
+                <circle cx="50" cy="70" r="12" fill="#ef4444" />
+                <circle cx="30" cy="50" r="12" fill="#ef4444" />
+              </svg>
+            </div>
+            <div className="absolute bottom-[70px] left-[50%] opacity-30 dark:opacity-10 transform scale-[0.25]">
+              <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <rect x="47" y="50" width="6" height="50" fill="#15803d" />
+                <circle cx="50" cy="50" r="15" fill="#facc15" />
+                <circle cx="50" cy="30" r="12" fill="#a855f7" />
+              </svg>
+            </div>
+          </>
+        )}
 
         {/* Cow SVG on the hill */}
         <div className="absolute bottom-[100px] left-[15%] opacity-40 dark:opacity-20 transform scale-[0.4] origin-bottom-left pointer-events-none z-0">
@@ -236,23 +251,25 @@ export default function Layout() {
       </div>
 
       {/* Header - Glassmorphism */}
-      <header className="flex-none relative z-50 bg-white/70 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 px-6 py-4 flex justify-between items-center shadow-sm transition-colors duration-500">
-        <div className="flex items-center">
-          <img src="/logo.png" alt="Kisan Nighaban" className="h-10 w-auto object-contain drop-shadow-sm transform scale-[1.7] origin-left" />
-        </div>
-        <div className="flex items-center gap-4">
-          <button onClick={toggleDarkMode} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors hidden sm:block">
-            {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} className="text-slate-600" />}
-          </button>
-          <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-            <Bell size={22} className="text-slate-600 dark:text-slate-300" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-black animate-pulse"></span>
-          </button>
-          <button onClick={() => navigate('/profile')} className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-white dark:border-slate-700 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-shadow ml-1">
-             <User size={24} className="text-slate-600 dark:text-slate-300" />
-          </button>
-        </div>
-      </header>
+      {!isAuthPage && (
+        <header className="flex-none relative z-50 bg-white/70 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 px-6 py-4 flex justify-between items-center shadow-sm transition-colors duration-500">
+          <div className="flex items-center">
+            <img src="/logo.png" alt="Kisan Nighaban" className="h-10 w-auto object-contain drop-shadow-sm transform scale-[1.7] origin-left" />
+          </div>
+          <div className="flex items-center gap-4">
+            <button onClick={toggleDarkMode} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors hidden sm:block">
+              {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} className="text-slate-600" />}
+            </button>
+            <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+              <Bell size={22} className="text-slate-600 dark:text-slate-300" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-black animate-pulse"></span>
+            </button>
+            <button onClick={() => navigate('/profile')} className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-white dark:border-slate-700 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-shadow ml-1">
+               <User size={24} className="text-slate-600 dark:text-slate-300" />
+            </button>
+          </div>
+        </header>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-h-0 relative z-10">
@@ -267,24 +284,26 @@ export default function Layout() {
       )}
 
       {/* Bottom Navigation - Glassmorphism */}
-      <nav className="h-[64px] bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-around items-center px-2 shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe relative">
-        <Link to="/" className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${path === '/' ? 'text-primary' : 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary'}`}>
-          <Home size={22} className={path === '/' ? 'fill-primary' : ''} />
-          <span className="text-[10px] mt-1 font-semibold tracking-wide">Home</span>
-        </Link>
-        <Link to="/farms" className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${path === '/farms' ? 'text-primary' : 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary'}`}>
-          <Map size={22} className={path === '/farms' ? 'fill-primary' : ''} />
-          <span className="text-[10px] mt-1 font-semibold tracking-wide">Farms</span>
-        </Link>
-        <Link to="/chat" className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${path === '/chat' ? 'text-primary' : 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary'}`}>
-          <MessageCircle size={22} className={path === '/chat' ? 'fill-primary' : ''} />
-          <span className="text-[10px] mt-1 font-semibold tracking-wide">Chatbot</span>
-        </Link>
-        <Link to="/settings" className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${path === '/settings' ? 'text-primary' : 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary'}`}>
-          <Settings size={22} className={path === '/settings' ? 'fill-primary' : ''} />
-          <span className="text-[10px] mt-1 font-semibold tracking-wide">Settings</span>
-        </Link>
-      </nav>
+      {!isAuthPage && (
+        <nav className="h-[64px] bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-around items-center px-2 shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe relative">
+          <Link to="/" className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${path === '/' ? 'text-primary' : 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary'}`}>
+            <Home size={26} className={path === '/' ? 'fill-primary' : ''} />
+            <span className="text-xs mt-1 font-semibold tracking-wide">{t('nav.home')}</span>
+          </Link>
+          <Link to="/farms" className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${path === '/farms' ? 'text-primary' : 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary'}`}>
+            <Map size={26} className={path === '/farms' ? 'fill-primary' : ''} />
+            <span className="text-xs mt-1 font-semibold tracking-wide">{t('nav.farms')}</span>
+          </Link>
+          <Link to="/chat" className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${path === '/chat' ? 'text-primary' : 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary'}`}>
+            <MessageCircle size={26} className={path === '/chat' ? 'fill-primary' : ''} />
+            <span className="text-xs mt-1 font-semibold tracking-wide">{t('nav.chatbot')}</span>
+          </Link>
+          <Link to="/settings" className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${path === '/settings' ? 'text-primary' : 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary'}`}>
+            <Settings size={26} className={path === '/settings' ? 'fill-primary' : ''} />
+            <span className="text-xs mt-1 font-semibold tracking-wide">{t('nav.settings')}</span>
+          </Link>
+        </nav>
+      )}
 
     </div>
   );
