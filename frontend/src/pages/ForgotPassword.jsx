@@ -37,8 +37,8 @@ export default function ForgotPassword() {
 
       <div className="px-6 relative z-10 pt-12 pb-20 w-full max-w-sm mx-auto">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl mx-auto flex items-center justify-center shadow-lg shadow-primary/30 mb-6 transform rotate-12">
-            <span className="text-4xl text-white font-bold -rotate-12">?</span>
+          <div className="w-32 h-32 mx-auto flex items-center justify-center mb-6">
+            <img src="/logo.png" alt="Kisan Nighaban Logo" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
           <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-300 tracking-tight">Recover Access</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">We'll help you get back to your farm.</p>

@@ -29,11 +29,8 @@ export default function Layout() {
     <div className="flex flex-col h-screen overflow-hidden font-sans bg-transparent">
       {/* Header - Glassmorphism */}
       <header className="flex-none relative z-50 bg-white/70 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 px-6 py-4 flex justify-between items-center shadow-sm transition-colors duration-500">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 rotate-3">
-            <span className="text-white font-bold text-lg -rotate-3">K</span>
-          </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-dark to-secondary-light dark:from-primary-light dark:to-secondary-light tracking-tight">Kisan Nighaban</h1>
+        <div className="flex items-center">
+          <img src="/logo.png" alt="Kisan Nighaban" className="h-10 w-auto object-contain drop-shadow-sm transform scale-[1.7] origin-left" />
         </div>
         <div className="flex items-center gap-3">
           <button onClick={toggleDarkMode} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors hidden sm:block">
