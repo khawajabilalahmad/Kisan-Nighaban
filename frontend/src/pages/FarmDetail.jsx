@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Droplets, Thermometer, Wind, AlertTriangle, Trash2, Edit2, Activity, X, Navigation, MapPin, Sprout, CloudRain } from 'lucide-react';
+import { ArrowLeft, Droplets, Thermometer, Wind, AlertTriangle, Trash2, Edit2, Activity, X, Navigation, MapPin, Sprout, CloudRain, Bot } from 'lucide-react';
 import MapPicker from '../components/MapPicker';
 import { farmsAPI, weatherAPI, analysisAPI, activitiesAPI } from '../services/api';
+import { useTranslation } from 'react-i18next';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import toast from 'react-hot-toast';
 
 export default function FarmDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+  const { t, i18n } = useTranslation();
   const [farm, setFarm] = useState(null);
   const [activities, setActivities] = useState([]);
   const [analysisData, setAnalysisData] = useState(null);
@@ -30,6 +32,16 @@ export default function FarmDetail() {
   const [activityData, setActivityData] = useState({ activity_type: 'Watering', description: '' });
   const [locationName, setLocationName] = useState('Faisalabad, Punjab');
   const [isLocating, setIsLocating] = useState(false);
+
+  // Mock historical data ending with the current score
+  const mockHistoricalData = analysisData ? [
+    { month: 'Apr', score: Math.max(0, analysisData.health_score - 15) },
+    { month: 'May', score: Math.max(0, analysisData.health_score - 5) },
+    { month: 'Jun', score: Math.max(0, analysisData.health_score - 10) },
+    { month: 'Jul', score: Math.min(100, analysisData.health_score + 5) },
+    { month: 'Aug', score: Math.max(0, analysisData.health_score - 2) },
+    { month: 'Sep', score: analysisData.health_score },
+  ] : [];
 
   useEffect(() => {
     fetchFarmData();
@@ -174,7 +186,7 @@ export default function FarmDetail() {
         setAnalyzingStep(prev => (prev < 3 ? prev + 1 : prev));
       }, 1500);
 
-      await analysisAPI.requestNewAnalysis(id);
+      await analysisAPI.requestNewAnalysis(id, i18n.language);
       
       clearInterval(stepInterval);
       setAnalyzingStep(4); // Final step
@@ -190,11 +202,11 @@ export default function FarmDetail() {
   };
 
   if (loading) {
-    return <div className="flex-1 flex items-center justify-center font-bold text-slate-500">Loading Farm Data...</div>;
+    return <div className="flex-1 flex items-center justify-center font-bold text-slate-500">{t('farm_detail.loading')}</div>;
   }
 
   if (!farm) {
-    return <div className="flex-1 flex items-center justify-center font-bold text-slate-500">Farm not found.</div>;
+    return <div className="flex-1 flex items-center justify-center font-bold text-slate-500">{t('farm_detail.not_found')}</div>;
   }
 
   return (
@@ -238,11 +250,11 @@ export default function FarmDetail() {
               <div className="flex justify-between items-end">
                 <div>
                   <p className="text-white font-black tracking-wide shadow-sm text-xl mb-1">
-                    Farm Health Score
+                    {t('farm_detail.health_score')}
                   </p>
                   <p className="text-white/80 text-sm font-medium shadow-sm flex items-center gap-1.5">
                     <Activity size={14} />
-                    {analysisData ? `Updated ${new Date(analysisData.assessed_at).toLocaleDateString()}` : 'Run Analysis to get a score'}
+                    {analysisData ? `${t('farm_detail.updated')} ${new Date(analysisData.assessed_at).toLocaleDateString()}` : t('farm_detail.run_analysis_score')}
                   </p>
                 </div>
                 {analysisData && (
@@ -259,7 +271,32 @@ export default function FarmDetail() {
           </div>
         </div>
 
-
+        {/* Historical Health Trend Graph */}
+        {analysisData && (
+          <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 mt-6">
+            <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight mb-4 pl-1">{t('farm_detail.health_trend', 'Health Trend')}</h3>
+            <div className="h-48 w-full" dir="ltr">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={mockHistoricalData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                  <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
+                    itemStyle={{ fontWeight: 'bold', color: '#10b981' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="score" 
+                    stroke="#10b981" 
+                    strokeWidth={4} 
+                    dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} 
+                    activeDot={{ r: 6 }} 
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
 
         {/* Secondary Actions */}
         <div className="grid grid-cols-2 gap-3">
@@ -270,22 +307,22 @@ export default function FarmDetail() {
             <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-3 transform group-hover:-rotate-12 transition-transform">
               <Droplets size={20} />
             </div>
-            <span className="font-black text-base tracking-tight leading-tight">Save<br/>Activity</span>
+            <span className="font-black text-base tracking-tight leading-tight">{t('farm_detail.save_activity')}</span>
           </button>
 
           <button 
             onClick={() => navigate('/chat', { state: { farmId: farm.id, autoMsg: true, farmName: farm.name } })}
             className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-3xl p-4 shadow-lg shadow-teal-500/30 flex flex-col items-start justify-center group transition-transform hover:scale-[1.02] active:scale-95"
           >
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-3 transform group-hover:-rotate-12 transition-transform text-2xl">
-              🤖
+            <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-3 transform group-hover:-rotate-12 transition-transform">
+              <Bot size={22} />
             </div>
-            <span className="font-black text-base tracking-tight leading-tight">Ask AI<br/>Chatbot</span>
+            <span className="font-black text-base tracking-tight leading-tight">{t('farm_detail.ask_ai')}</span>
           </button>
         </div>
 
         {/* 7-Day Weather Forecast */}
-        <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight pl-1 mt-6">Weather Forecast</h3>
+        <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight pl-1 mt-6">{t('farm_detail.weather')}</h3>
         {dailyForecast ? (
           <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-3xl p-5 border border-white/50 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             
@@ -293,7 +330,7 @@ export default function FarmDetail() {
             <div className="flex overflow-x-auto gap-3 pb-4 snap-x hide-scrollbar">
               {dailyForecast.time.map((dateStr, idx) => {
                 const date = new Date(dateStr);
-                const dayName = idx === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
+                const dayName = idx === 0 ? t('farm_detail.today') : date.toLocaleDateString('en-US', { weekday: 'short' });
                 const isSelected = selectedDayIdx === idx;
                 return (
                   <button 
@@ -315,27 +352,27 @@ export default function FarmDetail() {
                 <span className="font-bold text-sm text-slate-800 dark:text-white">
                   {Math.round(dailyForecast.temperature_2m_max[selectedDayIdx])}° / {Math.round(dailyForecast.temperature_2m_min[selectedDayIdx])}°
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">High/Low</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">{t('farm_detail.high_low')}</span>
               </div>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl flex flex-col items-center justify-center text-center">
                 <CloudRain size={20} className="text-blue-500 mb-1" />
                 <span className="font-bold text-sm text-slate-800 dark:text-white">
                   {dailyForecast.precipitation_sum[selectedDayIdx]} mm
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">Rain</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">{t('farm_detail.rain')}</span>
               </div>
               <div className="bg-teal-50 dark:bg-teal-900/20 p-3 rounded-2xl flex flex-col items-center justify-center text-center">
                 <Wind size={20} className="text-teal-500 mb-1" />
                 <span className="font-bold text-sm text-slate-800 dark:text-white">
                   {dailyForecast.wind_speed_10m_max[selectedDayIdx]} km/h
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">Max Wind</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">{t('farm_detail.max_wind')}</span>
               </div>
             </div>
           </div>
         ) : (
           <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md p-6 rounded-3xl border border-white/50 dark:border-white/10 text-center">
-            <span className="text-slate-500">Loading forecast...</span>
+            <span className="text-slate-500">{t('farm_detail.loading_forecast')}</span>
           </div>
         )}
 
@@ -347,12 +384,12 @@ export default function FarmDetail() {
         >
           <div className="flex flex-col items-start text-left">
             <span className="font-black text-lg tracking-tight">
-              {isAnalyzing ? "Analyzing Farm..." : "Run Climate Analysis"}
+              {isAnalyzing ? t('farm_detail.analyzing') : t('farm_detail.run_climate')}
             </span>
             <span className={`text-sm ${isAnalyzing ? 'text-slate-400 dark:text-slate-400' : 'text-white/80'} font-medium`}>
               {isAnalyzing 
                 ? ["Gathering local weather data...", "Analyzing crop growth stage...", "Evaluating recent activities...", "Generating Apna Kisaan recommendations...", "Finalizing..."][analyzingStep] 
-                : "Get precise weather & crop predictions"}
+                : t('farm_detail.get_predictions')}
             </span>
           </div>
           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transform transition-transform ${isAnalyzing ? 'bg-slate-300/50 dark:bg-slate-600/50 animate-pulse' : 'bg-white/20 backdrop-blur-md group-hover:rotate-12'}`}>
@@ -361,12 +398,12 @@ export default function FarmDetail() {
         </button>
 
         {/* AI Recommendations */}
-        <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight pl-1 mt-6">Apna Kisaan Analysis</h3>
+        <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight pl-1 mt-6">{t('farm_detail.kisaan_analysis')}</h3>
         
         {!analysisData ? (
           <div className="bg-slate-100 dark:bg-slate-800/50 p-6 rounded-3xl text-center border border-slate-200 dark:border-slate-700/50">
             <Activity size={32} className="text-slate-400 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">Click "Run Climate Analysis" to get AI insights for your farm.</p>
+            <p className="text-slate-500 font-medium">{t('farm_detail.click_run')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -377,11 +414,11 @@ export default function FarmDetail() {
                   <Sprout size={20} className="text-green-700 dark:text-green-300" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-green-900 dark:text-green-300">Action Required</h4>
+                  <h4 className="font-bold text-green-900 dark:text-green-300">{t('farm_detail.action_required')}</h4>
                   <p className="text-sm font-medium text-green-800 dark:text-green-400 mt-1 leading-relaxed">
                     {analysisData.recommendations && analysisData.recommendations.length > 0 
                       ? analysisData.recommendations[0].detail 
-                      : "No immediate actions required."}
+                      : t('farm_detail.no_actions')}
                   </p>
                 </div>
               </div>
@@ -394,13 +431,13 @@ export default function FarmDetail() {
                   <AlertTriangle size={20} className="text-orange-700 dark:text-orange-300" />
                 </div>
                 <div className="w-full">
-                  <h4 className="font-bold text-orange-900 dark:text-orange-300">Climate Risks</h4>
+                  <h4 className="font-bold text-orange-900 dark:text-orange-300">{t('farm_detail.climate_risks')}</h4>
                   {analysisData.analysis_breakdown ? (
                     <div className="mt-2 space-y-2">
                       {Object.entries(analysisData.analysis_breakdown).map(([risk, score]) => (
                         <div key={risk} className="flex items-center justify-between">
                           <span className="text-sm font-medium text-orange-800 dark:text-orange-400 capitalize">
-                            {risk.replace('_', ' ')}
+                            {t(`farm_detail.${risk}`, risk.replace('_', ' '))}
                           </span>
                           <div className="flex items-center gap-2">
                             <div className="w-24 h-2 bg-orange-200 dark:bg-orange-800/50 rounded-full overflow-hidden">
@@ -427,11 +464,11 @@ export default function FarmDetail() {
 
             {/* Mascot Tip */}
             <div className="bg-blue-50/80 dark:bg-blue-900/20 backdrop-blur-md p-5 rounded-3xl border border-blue-200 dark:border-blue-800/50 shadow-sm flex items-center gap-4">
-              <div className="w-14 h-14 bg-white dark:bg-slate-800 rounded-full shadow-md flex items-center justify-center shrink-0 text-2xl border border-blue-100 dark:border-blue-700/30">
-                🤖
+              <div className="w-14 h-14 bg-white dark:bg-slate-800 rounded-full shadow-md flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-700/30 text-blue-500">
+                <Bot size={28} />
               </div>
               <div>
-                <h4 className="font-bold text-blue-900 dark:text-blue-300 text-sm uppercase tracking-wider">Kisaan Tip</h4>
+                <h4 className="font-bold text-blue-900 dark:text-blue-300 text-sm uppercase tracking-wider">{t('farm_detail.kisaan_tip')}</h4>
                 <p className="text-sm font-bold text-blue-800 dark:text-blue-400 mt-0.5 italic">
                   "{analysisData.mascot_daily_tip?.en || 'Have a great farming day!'}"
                 </p>
@@ -441,11 +478,11 @@ export default function FarmDetail() {
         )}
 
         {/* Activity Log */}
-        <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight pl-1 mt-6">Recent Activities</h3>
+        <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-tight pl-1 mt-6">{t('farm_detail.recent_activities')}</h3>
         <div className="space-y-3">
           {activities.length === 0 ? (
             <div className="text-center p-6 text-slate-400 bg-white/60 dark:bg-black/40 rounded-3xl border border-white/50 dark:border-white/10">
-              No activities logged yet.
+              {t('farm_detail.no_activities')}
             </div>
           ) : (
             activities.map(act => (
@@ -471,22 +508,22 @@ export default function FarmDetail() {
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Trash2 size={32} />
             </div>
-            <h3 className="text-2xl font-black text-center text-slate-800 dark:text-white mb-2">Delete Farm?</h3>
-            <p className="text-center text-slate-500 dark:text-slate-400 font-medium mb-6">Are you sure you want to delete {farm.name}? This action cannot be undone.</p>
+            <h3 className="text-2xl font-black text-center text-slate-800 dark:text-white mb-2">{t('farm_detail.delete_farm')}</h3>
+            <p className="text-center text-slate-500 dark:text-slate-400 font-medium mb-6">{t('farm_detail.delete_confirm')} {farm.name}?</p>
             
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowDeleteModal(false)}
                 className="flex-1 py-3.5 rounded-2xl font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
-                Cancel
+                {t('farm_detail.cancel')}
               </button>
               <button 
                 onClick={handleDelete}
                 disabled={deleting}
                 className="flex-1 py-3.5 rounded-2xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30 transition-colors disabled:opacity-70"
               >
-                {deleting ? 'Deleting...' : 'Delete'}
+                {deleting ? t('farm_detail.deleting') : t('farm_detail.delete')}
               </button>
             </div>
           </div>
@@ -499,7 +536,7 @@ export default function FarmDetail() {
           <div className="w-full max-w-sm bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl relative animate-in slide-in-from-bottom-10 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300 flex flex-col max-h-[75vh] mb-20 overflow-hidden">
             
             <div className="p-6 pb-4 flex justify-between items-center border-b border-slate-100 dark:border-white/5 shrink-0">
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Edit Farm</h3>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">{t('farm_detail.edit_farm')}</h3>
               <button onClick={() => setShowEditModal(false)} className="p-2 -mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                 <X size={20} />
               </button>
@@ -517,12 +554,17 @@ export default function FarmDetail() {
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Crop Type</label>
-                <input 
-                  type="text" 
+                <select 
                   value={editData.crop_type} 
                   onChange={(e) => setEditData({...editData, crop_type: e.target.value})}
-                  className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" 
-                />
+                  className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
+                >
+                  <option value="wheat">{t('crops.wheat')}</option>
+                  <option value="rice">{t('crops.rice')}</option>
+                  <option value="cotton">{t('crops.cotton')}</option>
+                  <option value="maize">{t('crops.maize')}</option>
+                  <option value="other">{t('crops.other')}</option>
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Area</label>
@@ -542,9 +584,9 @@ export default function FarmDetail() {
                     onChange={(e) => setEditData({...editData, water_source: e.target.value})}
                     className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
                   >
-                    <option value="canal">Canal</option>
-                    <option value="tube_well">Tube Well</option>
-                    <option value="rain_fed">Rain-fed</option>
+                    <option value="canal">{t('water_sources.canal')}</option>
+                    <option value="tube_well">{t('water_sources.tube_well')}</option>
+                    <option value="rain_fed">{t('water_sources.rain_fed')}</option>
                   </select>
                 </div>
                 <div>
@@ -554,10 +596,10 @@ export default function FarmDetail() {
                     onChange={(e) => setEditData({...editData, soil_type: e.target.value})}
                     className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
                   >
-                    <option value="loamy">Loam</option>
-                    <option value="clay">Clay</option>
-                    <option value="sandy">Sandy</option>
-                    <option value="silt">Silt</option>
+                    <option value="loamy">{t('soil_types.loamy')}</option>
+                    <option value="clay">{t('soil_types.clay')}</option>
+                    <option value="sandy">{t('soil_types.sandy')}</option>
+                    <option value="silt">{t('soil_types.silt')}</option>
                   </select>
                 </div>
               </div>
@@ -594,7 +636,7 @@ export default function FarmDetail() {
 
             <div className="p-6 pt-4 border-t border-slate-100 dark:border-white/5 shrink-0 bg-slate-50/50 dark:bg-black/20">
               <button onClick={handleSaveEdit} disabled={saving} className="w-full bg-primary hover:bg-primary-dark text-white font-bold rounded-xl py-3 transition-colors disabled:opacity-70">
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? t('farm_detail.saving') : t('farm_detail.save_changes')}
               </button>
             </div>
           </div>

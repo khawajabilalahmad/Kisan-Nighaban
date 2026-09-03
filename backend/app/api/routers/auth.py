@@ -4,10 +4,15 @@ from sqlalchemy.future import select
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
-from app.schemas.auth import Token, ForgotPassword, ResetPassword
+from app.schemas.auth import Token, ForgotPassword, ResetPassword, GoogleToken
 from app.core.security import get_password_hash, verify_password, create_access_token, create_reset_token, verify_reset_token, get_current_user
 from app.core.email import send_reset_password_email
 from fastapi.security import OAuth2PasswordRequestForm
+import uuid
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
+GOOGLE_CLIENT_ID = "77060615579-smoqj80q0hm9pj38s7fagmu4op2fle6l.apps.googleusercontent.com"
 
 router = APIRouter()
 
@@ -18,15 +23,19 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     if user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    result = await db.execute(select(User).where(User.mobile_number == user_in.mobile_number))
-    mobile = result.scalars().first()
+    mobile = user_in.mobile_number
     if mobile:
-        raise HTTPException(status_code=400, detail="Mobile number already registered")
+        result = await db.execute(select(User).where(User.mobile_number == mobile))
+        existing_mobile = result.scalars().first()
+        if existing_mobile:
+            raise HTTPException(status_code=400, detail="Mobile number already registered")
+    else:
+        mobile = f"dummy_{uuid.uuid4()}"
         
     hashed_password = get_password_hash(user_in.password)
     db_user = User(
         email=user_in.email,
-        mobile_number=user_in.mobile_number,
+        mobile_number=mobile,
         full_name=user_in.full_name,
         hashed_password=hashed_password
     )
@@ -77,3 +86,41 @@ async def reset_password(data: ResetPassword, db: AsyncSession = Depends(get_db)
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+@router.post("/google", response_model=Token)
+async def google_login(data: GoogleToken, db: AsyncSession = Depends(get_db)):
+    try:
+        # Verify the Google token
+        idinfo = id_token.verify_oauth2_token(data.token, google_requests.Request(), GOOGLE_CLIENT_ID)
+        
+        email = idinfo.get("email")
+        name = idinfo.get("name", "Google User")
+        
+        if not email:
+            raise HTTPException(status_code=400, detail="No email provided by Google")
+            
+        # Check if user exists
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalars().first()
+        
+        if not user:
+            # Auto-create user
+            mobile = f"google_{uuid.uuid4()}"
+            hashed_password = get_password_hash(str(uuid.uuid4()))
+            
+            user = User(
+                email=email,
+                mobile_number=mobile,
+                full_name=name,
+                hashed_password=hashed_password
+            )
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
+            
+        # Issue token
+        access_token = create_access_token(subject=user.email)
+        return {"access_token": access_token, "token_type": "bearer"}
+        
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid Google token")

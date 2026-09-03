@@ -252,7 +252,7 @@ export default function Layout() {
 
       {/* Header - Glassmorphism */}
       {!isAuthPage && (
-        <header className="flex-none relative z-50 bg-white/70 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 px-6 py-4 flex justify-between items-center shadow-sm transition-colors duration-500">
+        <header dir="ltr" className="flex-none relative z-50 bg-white/70 dark:bg-black/50 backdrop-blur-xl border-b border-white/20 dark:border-white/10 px-6 py-4 flex justify-between items-center shadow-sm transition-colors duration-500">
           <div className="flex items-center">
             <img src="/logo.png" alt="Kisan Nighaban" className="h-10 w-auto object-contain drop-shadow-sm transform scale-[1.7] origin-left" />
           </div>
@@ -285,7 +285,7 @@ export default function Layout() {
 
       {/* Bottom Navigation - Glassmorphism */}
       {!isAuthPage && (
-        <nav className="h-[64px] bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-around items-center px-2 shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe relative">
+        <nav dir="ltr" className="h-[64px] bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-around items-center px-2 shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe relative">
           <Link to="/" className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${path === '/' ? 'text-primary' : 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary'}`}>
             <Home size={26} className={path === '/' ? 'fill-primary' : ''} />
             <span className="text-xs mt-1 font-semibold tracking-wide">{t('nav.home')}</span>
