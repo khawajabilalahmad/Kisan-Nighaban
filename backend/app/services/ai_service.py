@@ -15,13 +15,21 @@ def generate_farm_analysis(
     growth_stage: str, 
     growth_stage_day: int,
     farm_details: dict,
-    recent_activities: list
+    recent_activities: list,
+    language: str = "en"
 ) -> FarmAnalysisOutput:
     """
     Calls the Gemini API to assess climate risk based on crop profile, weather forecast, and farm activity.
     """
     if not client:
         raise ValueError("GEMINI_API_KEY is not configured.")
+
+    language_map = {
+        "en": "English",
+        "ru": "Roman Urdu (Hinglish)",
+        "ur": "Urdu"
+    }
+    lang_name = language_map.get(language, "English")
 
     # Construct the prompt
     prompt = f"""
@@ -45,7 +53,7 @@ def generate_farm_analysis(
     
     Task:
     1. Calculate the climate risk for heat stress, drought, flooding, and wind damage based on the weather and crop thresholds.
-    2. Provide an overall health score (0-100) and actionable recommendations in English.
+    2. Provide an overall health score (0-100) and actionable recommendations in the requested language: {lang_name}. Make sure ALL recommendations and the summary are written purely in {lang_name}.
     3. Generate a `mascot_daily_tip`. This MUST be provided in two languages:
        - `ur`: "Roz Marra" (everyday) Roman Urdu / Hinglish. It should sound like a WhatsApp voice note from a local farmer friend.
        - `en`: Simple, easy-to-understand English.
@@ -76,7 +84,8 @@ def generate_chat_reply(
     farm_context: str,
     chat_history: list,
     user_message: str,
-    image_path: str = None
+    image_path: str = None,
+    language: str = "english"
 ) -> str:
     """
     Generates a conversational reply as the Kisaan Mascot, with optional image support.
@@ -85,11 +94,18 @@ def generate_chat_reply(
     if not client:
         raise ValueError("GEMINI_API_KEY is not configured.")
 
+    language_map = {
+        "en": "English",
+        "ru": "Roman Urdu (Hinglish) - use English alphabet but Urdu words",
+        "ur": "Urdu (Arabic script)"
+    }
+    lang_name = language_map.get(language, "English")
+
     # 1. System Instructions (Context)
     system_instruction = f"""
     You are a "Digital Kisaan Bhai" (A friendly, local farmer advisor in Pakistan).
-    CRITICAL INSTRUCTION: You MUST reply in the EXACT SAME LANGUAGE that the user asks their question in. 
-    If the user asks in English, reply entirely in English. If the user asks in Roman Urdu or Hinglish, reply in Roman Urdu or Hinglish.
+    CRITICAL INSTRUCTION: The user's preferred application language is {lang_name}. 
+    You MUST translate all your agricultural advice and respond entirely in this language to ensure they understand your advice.
     You are conversational, empathetic, and knowledgeable.
     
     Here is the live context of the farm you are advising right now. 

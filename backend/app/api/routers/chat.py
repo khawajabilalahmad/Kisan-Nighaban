@@ -61,6 +61,7 @@ async def get_chat_history(farm_id: str, db: AsyncSession = Depends(get_db)):
 async def send_chat_message(
     farm_id: str,
     text: str = Form(...),
+    language: str = Form("english"),
     image: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db)
 ):
@@ -175,7 +176,8 @@ async def send_chat_message(
             farm_context=farm_context,
             chat_history=chat_history_dicts,
             user_message=text,
-            image_path=image_path
+            image_path=image_path,
+            language=language
         )
     except Exception as e:
         import traceback

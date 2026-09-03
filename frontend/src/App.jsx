@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import Farms from './pages/Farms';
 import FarmDetail from './pages/FarmDetail';
 import Notifications from './pages/Notifications';
+import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
@@ -29,24 +30,20 @@ export default function App() {
         }}
       />
       <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-
-      {/* Protected Routes inside the Mobile Layout */}
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="farms" element={<Farms />} />
-        <Route path="farms/:id" element={<FarmDetail />} />
-        <Route path="chat" element={<Chatbot />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="notifications" element={<Notifications />} />
-      </Route>
-      
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="/" element={<Layout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="farms" element={<ProtectedRoute><Farms /></ProtectedRoute>} />
+          <Route path="farms/:id" element={<ProtectedRoute><FarmDetail /></ProtectedRoute>} />
+          <Route path="chat" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
+          <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
   );
 }

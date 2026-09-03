@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CloudLightning, Droplets, Thermometer, Wind, CheckCircle2, AlertTriangle, Info, BellOff, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { notificationsAPI } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 
 export default function Notifications() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -77,7 +79,7 @@ export default function Notifications() {
   };
 
   if (loading) {
-    return <div className="p-6 text-center">Loading notifications...</div>;
+    return <div className="p-6 text-center">{t('notifications.loading')}</div>;
   }
 
   return (
@@ -91,7 +93,7 @@ export default function Notifications() {
           >
             <ArrowLeft size={24} className="text-slate-600 dark:text-slate-300" />
           </button>
-          <h1 className="text-2xl font-black text-slate-800 dark:text-white">Notifications</h1>
+          <h1 className="text-2xl font-black text-slate-800 dark:text-white">{t('notifications.title')}</h1>
         </div>
       </div>
 
@@ -100,7 +102,7 @@ export default function Notifications() {
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-slate-400">
             <BellOff size={48} className="mb-4 opacity-50" />
-            <p>No new notifications right now.</p>
+            <p>{t('notifications.empty')}</p>
           </div>
         ) : (
           notifications.map((notif) => (

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, Paperclip, PlusCircle, Sprout, MessageSquare, Menu, Trash2, X } from 'lucide-react';
 import { chatAPI, farmsAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import toast from 'react-hot-toast';
@@ -30,6 +31,7 @@ const TypewriterMessage = ({ text, onComplete }) => {
 
 export default function Chatbot() {
   const { getInitialGreeting, language } = useLanguage();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [messages, setMessages] = useState([
@@ -53,7 +55,7 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const response = await chatAPI.sendMessage(farmId, userMsg.content);
+      const response = await chatAPI.sendMessage(farmId, userMsg.content, language);
       // The backend returns the ChatMessage object which has 'content'
       const botMsg = { 
         id: response.id || (Date.now() + 1).toString(), 
@@ -167,7 +169,7 @@ export default function Chatbot() {
   }, [language]);
 
   if (fetchingFarm) {
-    return <div className="flex-1 flex items-center justify-center">Loading Chat...</div>;
+    return <div className="flex-1 flex items-center justify-center">{t('chatbot.loading')}</div>;
   }
 
   // CHAT LOBBY VIEW
@@ -194,7 +196,7 @@ export default function Chatbot() {
             ></div>
             <div className="absolute top-0 right-0 bottom-0 w-3/4 max-w-sm bg-slate-50 dark:bg-slate-900 z-40 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col animate-in slide-in-from-right-full duration-200">
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-800">
-                <h3 className="font-black text-slate-800 dark:text-white text-lg">Your Chats</h3>
+                <h3 className="font-black text-slate-800 dark:text-white text-lg">{t('chatbot.your_chats')}</h3>
                 <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full">
                   <X size={20} />
                 </button>
@@ -205,7 +207,7 @@ export default function Chatbot() {
                   className="w-full flex items-center gap-3 p-3 bg-primary/10 text-primary font-bold rounded-xl hover:bg-primary/20 transition-colors"
                 >
                   <PlusCircle size={20} />
-                  Start a New Chat
+                  {t('chatbot.start_new')}
                 </button>
                 <div className="h-4"></div>
                 
@@ -214,7 +216,7 @@ export default function Chatbot() {
                   className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors text-left ${activeFarmId === 'general' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-bold' : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium'}`}
                 >
                   <MessageSquare size={18} />
-                  General Chat
+                  {t('chatbot.general_chat')}
                 </button>
 
                 {farmsList.map(f => (
@@ -237,9 +239,9 @@ export default function Chatbot() {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <MessageSquare size={40} className="text-primary" />
             </div>
-            <h2 className="text-2xl font-black text-slate-800 dark:text-white">Start a Chat</h2>
+            <h2 className="text-2xl font-black text-slate-800 dark:text-white">{t('chatbot.start_chat')}</h2>
             <p className="text-slate-500 dark:text-slate-400 mt-2">
-              Select a specific farm context below so the AI knows your crop details, or start a general chat.
+              {t('chatbot.select_context')}
             </p>
           </div>
 
@@ -252,8 +254,8 @@ export default function Chatbot() {
                 <MessageSquare size={24} />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-slate-800 dark:text-white text-lg">General Chat</span>
-                <span className="text-sm text-slate-500 font-medium">Ask general agriculture questions without farm context</span>
+                <span className="font-bold text-slate-800 dark:text-white text-lg">{t('chatbot.general_chat')}</span>
+                <span className="text-sm text-slate-500 font-medium">{t('chatbot.general_desc')}</span>
               </div>
             </button>
 
@@ -267,7 +269,7 @@ export default function Chatbot() {
                   <Sprout size={24} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-slate-800 dark:text-white text-lg">Chat about {f.name}</span>
+                  <span className="font-bold text-slate-800 dark:text-white text-lg">{t('chatbot.chat_about')} {f.name}</span>
                   <span className="text-sm text-slate-500 font-medium">{f.crop_type} • {f.area} Acres</span>
                 </div>
               </button>
@@ -308,7 +310,7 @@ export default function Chatbot() {
           ></div>
           <div className="absolute top-0 right-0 bottom-0 w-3/4 max-w-sm bg-slate-50 dark:bg-slate-900 z-40 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col animate-in slide-in-from-right-full duration-200">
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-800">
-              <h3 className="font-black text-slate-800 dark:text-white text-lg">Your Chats</h3>
+              <h3 className="font-black text-slate-800 dark:text-white text-lg">{t('chatbot.your_chats')}</h3>
               <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full">
                 <X size={20} />
               </button>
@@ -319,7 +321,7 @@ export default function Chatbot() {
                 className="w-full flex items-center gap-3 p-3 bg-primary/10 text-primary font-bold rounded-xl hover:bg-primary/20 transition-colors"
               >
                 <PlusCircle size={20} />
-                Start a New Chat
+                {t('chatbot.start_new')}
               </button>
               <div className="h-4"></div>
               
@@ -328,7 +330,7 @@ export default function Chatbot() {
                 className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors text-left ${activeFarmId === 'general' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-bold' : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium'}`}
               >
                 <MessageSquare size={18} />
-                General Chat
+                {t('chatbot.general_chat')}
               </button>
 
               {farmsList.map(f => (
@@ -347,11 +349,11 @@ export default function Chatbot() {
       )}
 
       {/* Chat History */}
-      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 pt-16 pb-[80px] space-y-4 scroll-smooth">
+      <div ref={chatContainerRef} dir="ltr" className="flex-1 overflow-y-auto p-4 pt-16 pb-[80px] space-y-4 scroll-smooth">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] p-4 rounded-3xl ${msg.role === 'user' ? 'bg-primary text-white rounded-br-none shadow-md shadow-primary/20' : 'bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-white/50 dark:border-white/10 text-slate-800 dark:text-slate-100 rounded-bl-none shadow-[0_4px_20px_rgb(0,0,0,0.05)]'}`}>
-              <div className={`prose prose-sm dark:prose-invert max-w-none ${msg.role === 'user' ? 'prose-p:text-white prose-strong:text-white prose-a:text-white' : ''}`}>
+              <div dir={msg.role === 'model' && language === 'ur' ? 'rtl' : 'ltr'} className={`prose prose-sm dark:prose-invert max-w-none ${msg.role === 'user' ? 'prose-p:text-white prose-strong:text-white prose-a:text-white' : ''}`}>
                 {msg.isNew && msg.role === 'model' ? (
                   <TypewriterMessage text={msg.content} onComplete={scrollToBottom} />
                 ) : (
@@ -373,13 +375,13 @@ export default function Chatbot() {
       </div>
 
       {/* Input Area */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent dark:from-slate-900 dark:via-slate-900 z-10">
+      <div dir="ltr" className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent dark:from-slate-900 dark:via-slate-900 z-10">
         <form onSubmit={handleSend} className="relative flex items-center bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 p-1 pl-4 pr-1">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={language === 'ur' ? "اپنا سوال یہاں لکھیں..." : "Ask your agriculture question..."}
+            placeholder={t('chatbot.type_message')}
             className="flex-1 bg-transparent border-none focus:outline-none text-slate-800 dark:text-white py-3 placeholder:text-slate-400"
             disabled={isLoading}
           />
@@ -394,7 +396,7 @@ export default function Chatbot() {
             disabled={isLoading || !input.trim()}
             className="p-3 bg-primary text-white rounded-full hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <Send size={20} className={language === 'ur' ? "transform rotate-180" : ""} />
+            <Send size={20} />
           </button>
         </form>
       </div>
