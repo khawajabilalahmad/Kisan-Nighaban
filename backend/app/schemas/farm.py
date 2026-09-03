@@ -9,6 +9,8 @@ class FarmBase(BaseModel):
     latitude: float = Field(..., example=31.52)
     longitude: float = Field(..., example=74.36)
     district: Optional[str] = Field(None, example="Lahore")
+    water_source: Optional[str] = Field(None, example="tubewell")
+    soil_type: Optional[str] = Field(None, example="loam")
 
 class FarmCreate(FarmBase):
     pass
@@ -20,6 +22,8 @@ class FarmUpdate(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     district: Optional[str] = None
+    water_source: Optional[str] = None
+    soil_type: Optional[str] = None
 
 class FarmResponse(FarmBase):
     id: str

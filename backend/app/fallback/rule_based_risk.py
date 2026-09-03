@@ -1,6 +1,14 @@
 from app.schemas.risk import RiskAssessmentOutput, RiskBreakdown, Recommendation
 
-def calculate_rule_based_risk(crop_type: str, crop_profile: dict, weather_data: dict, growth_stage: str, growth_stage_day: int) -> RiskAssessmentOutput:
+def calculate_rule_based_risk(
+    crop_type: str, 
+    crop_profile: dict, 
+    weather_data: dict, 
+    growth_stage: str, 
+    growth_stage_day: int,
+    farm_details: dict,
+    recent_activities: list
+) -> RiskAssessmentOutput:
     """
     Fallback method to calculate risk scores using hard-coded rules and thresholds
     when the AI service is unavailable.
@@ -98,6 +106,16 @@ def calculate_rule_based_risk(crop_type: str, crop_profile: dict, weather_data: 
     else:
         summary += "Weather conditions are generally favorable."
 
+    mascot_daily_tip = {
+        "ur": "Bhai, AI server thora masroof hai, lekin system ke mutabiq aapka khet theek lag raha hai. Apna khayal rakhen!",
+        "en": "Friend, the AI server is a bit busy, but according to the system, your farm is looking good. Take care!"
+    }
+    if overall_score > 50:
+        mascot_daily_tip = {
+            "ur": "Bhai, mosam thora kharab lag raha hai. Khet ka khas khayal rakhen aur paani/drainage ka bandobast karen.",
+            "en": "Friend, the weather is looking a bit rough. Take special care of the farm and manage your water/drainage."
+        }
+
     return RiskAssessmentOutput(
         risk_score=overall_score,
         risk_level=risk_level,
@@ -110,5 +128,6 @@ def calculate_rule_based_risk(crop_type: str, crop_profile: dict, weather_data: 
         growth_stage=growth_stage,
         growth_stage_day=growth_stage_day,
         summary=summary,
+        mascot_daily_tip=mascot_daily_tip,
         recommendations=recommendations
     )

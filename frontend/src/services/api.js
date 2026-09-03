@@ -1,60 +1,149 @@
-const API_BASE = '/api';
+import axios from 'axios';
 
-async function request(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
-  const token = localStorage.getItem('token');
-  const headers = { 'Content-Type': 'application/json', ...options.headers };
+// Configure the base URL for the FastAPI backend
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add a request interceptor to automatically attach the JWT token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Auth Service
+export const authAPI = {
+  // Login expects application/x-www-form-urlencoded as per OAuth2 spec standard used in FastAPI
+  login: async (email, password) => {
+    const formData = new URLSearchParams();
+    formData.append('username', email); // FastAPI OAuth2PasswordRequestForm uses 'username'
+    formData.append('password', password);
+    
+    const response = await api.post('/auth/login', formData, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    return response.data;
+  },
   
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  register: async (userData) => {
+    const response = await api.post('/auth/register', userData);
+    return response.data;
+  },
+  
+  getUser: async () => {
+    const response = await api.get('/auth/me');
+    return response.data;
   }
+};
 
-  const config = {
-    ...options,
-    headers,
-  };
-
-  const response = await fetch(url, config);
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
-    throw new Error(errorBody.detail || `Request failed: ${response.status}`);
+// Farms Service
+export const farmsAPI = {
+  getFarms: async () => {
+    const response = await api.get('/farms');
+    return response.data;
+  },
+  
+  getFarm: async (farmId) => {
+    const response = await api.get(`/farms/${farmId}`);
+    return response.data;
+  },
+  
+  createFarm: async (farmData) => {
+    const response = await api.post('/farms', farmData);
+    return response.data;
+  },
+  
+  updateFarm: async (farmId, farmData) => {
+    const response = await api.put(`/farms/${farmId}`, farmData);
+    return response.data;
+  },
+  
+  deleteFarm: async (farmId) => {
+    const response = await api.delete(`/farms/${farmId}`);
+    return response.data;
   }
+};
 
-  if (response.status === 204) return null;
-  return response.json();
-}
+// Weather Service
+export const weatherAPI = {
+  getWeather: async (farmId) => {
+    const response = await api.get(`/weather/${farmId}`);
+    return response.data;
+  }
+};
 
-// --- Farms ---
-export const getFarms = () => request('/farms');
+// AI Analysis & Risk Service
+export const analysisAPI = {
+  getLatestAnalysis: async (farmId) => {
+    const response = await api.get(`/analysis/${farmId}/latest`);
+    return response.data;
+  },
+  
+  requestNewAnalysis: async (farmId) => {
+    const response = await api.post(`/analysis/${farmId}/analyze`);
+    return response.data;
+  }
+};
 
-export const getFarm = (farmId) => request(`/farms/${farmId}`);
+// Chatbot Service
+export const chatAPI = {
+  getHistory: async (farmId) => {
+    const response = await api.get(`/chat/${farmId}/history`);
+    return response.data;
+  },
+  
+  sendMessage: async (farmId, text) => {
+    const formData = new FormData();
+    formData.append('text', text);
+    const response = await api.post(`/chat/${farmId}/message`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+  
+  deleteHistory: async (farmId) => {
+    const response = await api.delete(`/chat/${farmId}/history`);
+    return response.data;
+  }
+};
 
-export const createFarm = (farmData) =>
-  request('/farms', {
-    method: 'POST',
-    body: JSON.stringify(farmData),
-  });
+// Notifications Service
+export const notificationsAPI = {
+  getNotifications: async () => {
+    const response = await api.get('/notifications');
+    return response.data;
+  },
+  
+  markAsRead: async (notificationId) => {
+    const response = await api.post(`/notifications/${notificationId}/read`);
+    return response.data;
+  }
+};
 
-export const updateFarm = (farmId, farmData) =>
-  request(`/farms/${farmId}`, {
-    method: 'PUT',
-    body: JSON.stringify(farmData),
-  });
+// Activities Service
+export const activitiesAPI = {
+  getActivities: async (farmId) => {
+    const response = await api.get(`/activities/farms/${farmId}/activities`);
+    return response.data;
+  },
+  
+  createActivity: async (farmId, activityData) => {
+    const response = await api.post(`/activities/farms/${farmId}/activities`, activityData);
+    return response.data;
+  }
+};
 
-export const deleteFarm = (farmId) =>
-  request(`/farms/${farmId}`, { method: 'DELETE' });
-
-// --- Weather ---
-export const getWeather = (farmId) => request(`/weather/${farmId}`);
-
-// --- Risk Assessment ---
-export const assessRisk = (farmId) =>
-  request(`/risk/${farmId}/assess`, { method: 'POST' });
-
-export const getLatestRisk = (farmId) => request(`/risk/${farmId}/latest`);
-
-export const getRiskHistory = (farmId) => request(`/risk/${farmId}/history`);
-
-// --- Health ---
-export const healthCheck = () => request('/health');
+export default api;

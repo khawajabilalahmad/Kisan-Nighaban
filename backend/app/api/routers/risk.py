@@ -9,6 +9,7 @@ import json
 from app.db.session import get_db
 from app.models.farm import Farm
 from app.models.risk_assessment import RiskAssessment
+from app.models.activity import FarmActivity
 from app.schemas.risk import RiskAssessmentOutput, RiskAssessmentResponse
 
 from app.services.weather_service import fetch_weather_forecast
@@ -51,15 +52,35 @@ async def assess_risk(farm_id: str, db: AsyncSession = Depends(get_db)):
         
     growth_stage = compute_growth_stage(crop_type_lower, farm.sowing_date)
     growth_stage_day = (date.today() - farm.sowing_date).days
+    
+    # 4. Fetch Recent Activities (Last 5)
+    activity_result = await db.execute(
+        select(FarmActivity)
+        .where(FarmActivity.farm_id == farm_id)
+        .order_by(FarmActivity.date_logged.desc())
+        .limit(5)
+    )
+    activities = activity_result.scalars().all()
+    recent_activities = [
+        {"activity_type": act.activity_type, "description": act.description, "date_logged": act.date_logged.isoformat()}
+        for act in activities
+    ]
+    
+    farm_details = {
+        "water_source": farm.water_source,
+        "soil_type": farm.soil_type
+    }
 
-    # 4. Generate Risk Assessment (AI with fallback)
+    # 5. Generate Risk Assessment (AI with fallback)
     try:
         assessment_output = generate_risk_assessment(
             crop_type=farm.crop_type,
             crop_profile=crop_profile,
             weather_data=weather_data,
             growth_stage=growth_stage,
-            growth_stage_day=growth_stage_day
+            growth_stage_day=growth_stage_day,
+            farm_details=farm_details,
+            recent_activities=recent_activities
         )
     except Exception as e:
         logger.warning(f"AI assessment failed: {e}. Falling back to rule-based logic.")
@@ -68,10 +89,12 @@ async def assess_risk(farm_id: str, db: AsyncSession = Depends(get_db)):
             crop_profile=crop_profile,
             weather_data=weather_data,
             growth_stage=growth_stage,
-            growth_stage_day=growth_stage_day
+            growth_stage_day=growth_stage_day,
+            farm_details=farm_details,
+            recent_activities=recent_activities
         )
 
-    # 5. Save Assessment to Database
+    # 6. Save Assessment to Database
     new_assessment = RiskAssessment(
         farm_id=farm.id,
         risk_score=assessment_output.risk_score,
@@ -79,7 +102,8 @@ async def assess_risk(farm_id: str, db: AsyncSession = Depends(get_db)):
         risk_breakdown=assessment_output.risk_breakdown.model_dump(),
         recommendations=[rec.model_dump() for rec in assessment_output.recommendations],
         weather_snapshot=weather_data,
-        growth_stage=assessment_output.growth_stage
+        growth_stage=assessment_output.growth_stage,
+        mascot_daily_tip=assessment_output.mascot_daily_tip.model_dump() if assessment_output.mascot_daily_tip else None
     )
     
     db.add(new_assessment)

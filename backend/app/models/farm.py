@@ -17,9 +17,16 @@ class Farm(Base):
     longitude = Column(Float, nullable=False)
     district = Column(String, nullable=True)
     owner_id = Column(String, ForeignKey("users.id"), nullable=False)
+    water_source = Column(String, nullable=True) # e.g. tubewell, canal, rain-fed
+    soil_type = Column(String, nullable=True) # e.g. clay, sandy, loam
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
     owner = relationship("User", back_populates="farms")
-    # Relationship to risk assessments
     risk_assessments = relationship("RiskAssessment", back_populates="farm", cascade="all, delete-orphan")
+    # Relationship to farm analyses
+    farm_analyses = relationship("FarmAnalysis", back_populates="farm", cascade="all, delete-orphan")
+    # Relationship to chat sessions
+    chat_sessions = relationship("ChatSession", back_populates="farm", cascade="all, delete-orphan")
+    # Relationship to daily tracking logs
+    activities = relationship("FarmActivity", back_populates="farm", cascade="all, delete-orphan")
