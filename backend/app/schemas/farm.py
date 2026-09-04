@@ -8,6 +8,7 @@ class FarmBase(BaseModel):
     sowing_date: date = Field(..., example="2024-11-01")
     latitude: float = Field(..., example=31.52)
     longitude: float = Field(..., example=74.36)
+    area: Optional[float] = Field(0.0, example=5.5)
     district: Optional[str] = Field(None, example="Lahore")
     water_source: Optional[str] = Field(None, example="tubewell")
     soil_type: Optional[str] = Field(None, example="loam")
@@ -21,6 +22,7 @@ class FarmUpdate(BaseModel):
     sowing_date: Optional[date] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    area: Optional[float] = None
     district: Optional[str] = None
     water_source: Optional[str] = None
     soil_type: Optional[str] = None
