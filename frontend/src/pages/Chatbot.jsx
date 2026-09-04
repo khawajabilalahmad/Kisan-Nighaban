@@ -47,6 +47,8 @@ export default function Chatbot() {
   const [selectedImage, setSelectedImage] = useState(null);
   const chatContainerRef = useRef(null);
   const fileInputRef = useRef(null);
+  const textareaRef = useRef(null);
+  const hasSentAutoMsg = useRef(false);
 
   const sendMessageToBot = async (text, farmId = activeFarmId, imageFile = null) => {
     if ((!text.trim() && !imageFile) || !farmId) return;
@@ -60,6 +62,9 @@ export default function Chatbot() {
     const userMsg = { id: Date.now().toString(), role: 'user', content: content };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
     setSelectedImage(null);
     setIsLoading(true);
 
@@ -151,8 +156,13 @@ export default function Chatbot() {
         } else {
           setMessages([]);
           if (location.state?.autoMsg && activeFarmId !== "general") {
-            // If there's no history and we navigated with autoMsg, send an auto message!
-            await sendMessageToBot(`Hi! Let's discuss ${location.state.farmName || 'my farm'}. Please review my recent activities and current weather, and give me some advice!`, activeFarmId);
+            if (!hasSentAutoMsg.current) {
+              hasSentAutoMsg.current = true;
+              // If there's no history and we navigated with autoMsg, send an auto message!
+              await sendMessageToBot(`Hi! Let's discuss ${location.state.farmName || 'my farm'}. Please review my recent activities and current weather, and give me some advice!`, activeFarmId);
+              window.history.replaceState({}, document.title);
+            }
+            // Do not fall into the else block on the second strict mode pass
           } else if (activeFarmId !== "general") {
             // Send an automatic contextual greeting from the bot if it's a specific farm
             setMessages([{ id: '1', role: 'model', content: `Hello! I have loaded your farm context. How can I help you with your crop today?` }]);
@@ -406,7 +416,7 @@ export default function Chatbot() {
             <img src={URL.createObjectURL(selectedImage)} alt="Preview" className="h-16 w-auto rounded object-cover" />
           </div>
         )}
-        <form onSubmit={handleSend} className="relative flex items-center bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 p-1 pl-4 pr-1">
+        <form onSubmit={handleSend} className="relative flex items-end bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700 p-1 pl-4 pr-1">
           <input
             type="file"
             accept="image/*"
@@ -414,12 +424,26 @@ export default function Chatbot() {
             className="hidden"
             onChange={handleImageChange}
           />
-          <input
-            type="text"
+          <textarea
+            ref={textareaRef}
+            rows={1}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              e.target.style.height = 'auto';
+              e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!isLoading && (input.trim() || selectedImage)) {
+                  handleSend(e);
+                }
+              }
+            }}
             placeholder={selectedImage ? t('chatbot.type_message', 'Add a message with this image...') : t('chatbot.type_message')}
-            className="flex-1 bg-transparent border-none focus:outline-none text-slate-800 dark:text-white py-3 placeholder:text-slate-400"
+            className="flex-1 bg-transparent border-none focus:outline-none text-slate-800 dark:text-white py-3 placeholder:text-slate-400 resize-none overflow-y-auto"
+            style={{ maxHeight: '120px' }}
             disabled={isLoading}
           />
           <button
