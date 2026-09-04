@@ -15,6 +15,7 @@ class Farm(Base):
     sowing_date = Column(Date, nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
+    area = Column(Float, nullable=True, default=0.0)
     district = Column(String, nullable=True)
     owner_id = Column(String, ForeignKey("users.id"), nullable=False)
     water_source = Column(String, nullable=True) # e.g. tubewell, canal, rain-fed
