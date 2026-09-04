@@ -55,7 +55,12 @@ export default function SunflowerMascot() {
   }, [isMorning]);
 
   useEffect(() => {
+    let lastTime = 0;
     const handleMouseMove = (e) => {
+      const now = Date.now();
+      if (now - lastTime < 50) return; // Throttle to 20fps for performance
+      lastTime = now;
+
       setMousePos({ x: e.clientX, y: e.clientY });
       
       if (isSleeping) setIsSleeping(false);

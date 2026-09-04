@@ -39,7 +39,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden font-sans bg-gradient-to-b from-sky-200 to-sky-50 dark:from-indigo-950 dark:to-slate-900 transition-colors duration-500 relative">
+    <div className="flex flex-col h-[100dvh] overflow-hidden font-sans bg-gradient-to-b from-sky-200 to-sky-50 dark:from-indigo-950 dark:to-slate-900 relative">
       <style>{`
         @keyframes flyAcross {
           from { transform: translateX(-150px) translateY(20px); }
@@ -88,39 +88,39 @@ export default function Layout() {
         </div>
         
         {/* Clouds (Clustered on Left) */}
-        <div className="absolute top-10 -left-10 opacity-80 drop-shadow-sm scale-125 origin-center blur-[1px]">
+        <div className="absolute top-10 -left-10 opacity-80 scale-125 origin-center">
           <svg width="250" height="120" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1325 20.177 10.2023 17.8576 10.0159C17.3916 6.61907 14.4754 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2338 4.01148 11.4649 4.03387 11.6925C1.7828 12.2133 0 14.2818 0 16.5C0 19.3409 2.50294 21.603 5.4 21.4939L17.5 19Z" fill="white" opacity="0.9" />
             <path d="M15 16C17 16 19 14.5 19 12.5C19 10.5 17.5 8.5 15.5 8.5C15 6 12.5 4 10 4C7 4 4.5 6.5 4.5 9.5C4.5 9.8 4.5 10 4.6 10.3C3 10.8 1.5 12.5 1.5 14.5C1.5 16.8 3.5 18.5 6 18.5L15 16Z" fill="white" opacity="0.6" transform="translate(-1, 1)" />
           </svg>
         </div>
 
-        <div className="absolute top-32 left-[15%] opacity-60 transform scale-110 blur-[2px]">
+        <div className="absolute top-32 left-[15%] opacity-60 transform scale-110">
           <svg width="180" height="80" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1325 20.177 10.2023 17.8576 10.0159C17.3916 6.61907 14.4754 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2338 4.01148 11.4649 4.03387 11.6925C1.7828 12.2133 0 14.2818 0 16.5C0 19.3409 2.50294 21.603 5.4 21.4939L17.5 19Z" fill="white" opacity="0.8" />
           </svg>
         </div>
 
-        <div className="absolute top-6 left-[30%] opacity-50 transform scale-75 blur-[2px]">
+        <div className="absolute top-6 left-[30%] opacity-50 transform scale-75">
           <svg width="120" height="60" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 17C17.5 17 19.5 15 19.5 12.5C19.5 10.3 17.8 8.4 15.6 8.1C15.2 4.9 12.4 2.5 9 2.5C5.4 2.5 2.5 5.4 2.5 9C2.5 9.2 2.5 9.4 2.5 9.6C1 10.1 -0.5 12 -0.5 14C-0.5 16.7 1.8 18.8 4.5 18.7L15 17Z" fill="white" opacity="0.7" />
           </svg>
         </div>
         
-        <div className="absolute top-48 left-[5%] opacity-40 transform scale-90 blur-[1px]">
+        <div className="absolute top-48 left-[5%] opacity-40 transform scale-90">
           <svg width="160" height="70" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 17C17.5 17 19.5 15 19.5 12.5C19.5 10.3 17.8 8.4 15.6 8.1C15.2 4.9 12.4 2.5 9 2.5C5.4 2.5 2.5 5.4 2.5 9C2.5 9.2 2.5 9.4 2.5 9.6C1 10.1 -0.5 12 -0.5 14C-0.5 16.7 1.8 18.8 4.5 18.7L15 17Z" fill="white" opacity="0.7" />
           </svg>
         </div>
 
         {/* Lower Clouds (near Total Farms area) */}
-        <div className="absolute top-[35vh] right-[10%] opacity-30 transform scale-75 blur-[2px]">
+        <div className="absolute top-[35vh] right-[10%] opacity-30 transform scale-75">
           <svg width="180" height="80" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1325 20.177 10.2023 17.8576 10.0159C17.3916 6.61907 14.4754 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2338 4.01148 11.4649 4.03387 11.6925C1.7828 12.2133 0 14.2818 0 16.5C0 19.3409 2.50294 21.603 5.4 21.4939L17.5 19Z" fill="white" opacity="0.8" />
           </svg>
         </div>
         
-        <div className="absolute top-[45vh] left-[20%] opacity-20 transform scale-50 blur-[2px]">
+        <div className="absolute top-[45vh] left-[20%] opacity-20 transform scale-50">
           <svg width="150" height="60" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 17C17.5 17 19.5 15 19.5 12.5C19.5 10.3 17.8 8.4 15.6 8.1C15.2 4.9 12.4 2.5 9 2.5C5.4 2.5 2.5 5.4 2.5 9C2.5 9.2 2.5 9.4 2.5 9.6C1 10.1 -0.5 12 -0.5 14C-0.5 16.7 1.8 18.8 4.5 18.7L15 17Z" fill="white" opacity="0.7" />
           </svg>
@@ -212,10 +212,10 @@ export default function Layout() {
 
         {/* Trees on the hills (Emoji version) */}
         {/* Distant trees on the hills */}
-        <div className="absolute bottom-[18vh] right-[30%] text-[45px] leading-none transform scale-90 drop-shadow-sm select-none opacity-85 dark:opacity-65 z-0">
+        <div className="absolute bottom-[18vh] right-[30%] text-[45px] leading-none transform scale-90 select-none opacity-85 dark:opacity-65 z-0">
           🌲
         </div>
-        <div className="absolute bottom-[11vh] right-[45%] text-[40px] leading-none transform scale-90 drop-shadow-sm select-none opacity-80 dark:opacity-60 z-0">
+        <div className="absolute bottom-[11vh] right-[45%] text-[40px] leading-none transform scale-90 select-none opacity-80 dark:opacity-60 z-0">
           🌳
         </div>
 

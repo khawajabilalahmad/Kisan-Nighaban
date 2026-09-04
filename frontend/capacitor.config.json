@@ -1,5 +1,10 @@
 {
   "appId": "com.kisan.nighaban",
   "appName": "Kisaan Nigahbaan",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "GoogleSignIn": {
+      "clientId": "77060615579-smoqj80q0hm9pj38s7fagmu4op2fle6l.apps.googleusercontent.com"
+    }
+  }
 }
