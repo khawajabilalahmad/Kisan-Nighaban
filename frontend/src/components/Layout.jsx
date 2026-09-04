@@ -17,11 +17,15 @@ export default function Layout() {
 
   const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(path);
 
+  const [bgHeight, setBgHeight] = useState('100vh');
+  
   useEffect(() => {
     // Check initial dark mode preference
     if (document.documentElement.classList.contains('dark')) {
       setIsDarkMode(true);
     }
+    // Lock background height to physical screen size to prevent keyboard squishing
+    setBgHeight(`${window.innerHeight}px`);
   }, []);
 
   const toggleDarkMode = () => {
@@ -53,8 +57,11 @@ export default function Layout() {
         .birds-rl-3 { animation: flyAcrossReverse 30s linear infinite -12s; }
       `}</style>
       
-      {/* Immersive Farm Scene Background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+      {/* Immersive Farm Scene Background - Locked height to prevent keyboard squish */}
+      <div 
+        className="absolute top-0 left-0 w-full pointer-events-none overflow-hidden z-0" 
+        style={{ height: bgHeight }}
+      >
         {/* Base Layer (Shows up on auth pages where there is no navbar) */}
         <div className="absolute inset-x-0 bottom-0 h-[64px] bg-[#1a4a2b] dark:bg-black z-0"></div>
 
@@ -272,7 +279,7 @@ export default function Layout() {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-h-0 relative z-10">
+      <main className="flex-1 flex flex-col min-h-0 relative z-10 overflow-y-auto">
         <Outlet />
       </main>
 

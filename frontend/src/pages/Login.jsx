@@ -64,7 +64,7 @@ export default function Login() {
   };
 
   return (
-    <div dir="ltr" className="flex-1 flex flex-col justify-center relative font-sans">
+    <div dir="ltr" className="flex-1 flex flex-col relative font-sans py-8">
 
       {/* Language Selector */}
       <div className="absolute top-4 right-4 z-50 bg-white/70 dark:bg-black/50 backdrop-blur-md rounded-full p-1 flex gap-1 shadow-sm border border-white/20 dark:border-white/10">
@@ -82,7 +82,7 @@ export default function Login() {
         />
       )}
 
-      <div className="px-6 relative z-10 pt-4 pb-20 w-full max-w-sm mx-auto">
+      <div className="px-6 relative z-10 w-full max-w-sm mx-auto my-auto">
         <div className="text-center mb-4">
           <div className="w-64 h-40 mx-auto flex items-center justify-center">
             <img src="/logo.png" alt="Kisan Nighaban Logo" className="w-full h-full object-contain drop-shadow-xl" />

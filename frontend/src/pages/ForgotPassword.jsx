@@ -21,7 +21,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div dir="ltr" className="flex-1 flex flex-col justify-center relative font-sans">
+    <div dir="ltr" className="flex-1 flex flex-col relative font-sans py-8">
 
       {alert && (
         <Alert 
@@ -32,7 +32,7 @@ export default function ForgotPassword() {
         />
       )}
 
-      <div className="px-6 relative z-10 pt-4 pb-20 w-full max-w-sm mx-auto">
+      <div className="px-6 relative z-10 w-full max-w-sm mx-auto my-auto">
         <div className="text-center mb-4">
           <div className="w-64 h-40 mx-auto flex items-center justify-center">
             <img src="/logo.png" alt="Kisan Nighaban Logo" className="w-full h-full object-contain drop-shadow-xl" />
