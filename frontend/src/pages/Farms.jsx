@@ -63,29 +63,33 @@ export default function Farms() {
     }
   };
 
-  const handleGetCurrentLocation = () => {
+  const handleGetCurrentLocation = async () => {
     setIsLocating(true);
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          setCoordinates({ lat, lng });
-          
-          // Reverse geocode to get a readable name
-          const addressName = await reverseGeocode(lat, lng);
-          setLocationName(`${addressName} (GPS)`);
-          setIsLocating(false);
-        },
-        (error) => {
-          console.error("Error getting location", error);
-          alert("Could not get your location. Please check browser permissions.");
-          setIsLocating(false);
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    } else {
-      alert("Geolocation is not supported by your browser");
+    try {
+      const { Geolocation } = await import('@capacitor/geolocation');
+      
+      let perm = await Geolocation.checkPermissions();
+      if (perm.location !== 'granted') {
+        perm = await Geolocation.requestPermissions();
+      }
+      
+      if (perm.location !== 'granted') {
+        alert("Location permission denied. Please enable it in your device settings.");
+        setIsLocating(false);
+        return;
+      }
+      
+      const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      setCoordinates({ lat, lng });
+      
+      const addressName = await reverseGeocode(lat, lng);
+      setLocationName(`${addressName} (GPS)`);
+    } catch (error) {
+      console.error("Error getting location", error);
+      alert("Could not get your location. Please ensure location services are enabled on your device.");
+    } finally {
       setIsLocating(false);
     }
   };

@@ -129,26 +129,31 @@ export default function FarmDetail() {
     }
   };
 
-  const handleGetCurrentLocation = () => {
+  const handleGetCurrentLocation = async () => {
     setIsLocating(true);
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          setCoordinates({ lat, lng });
-          setLocationName(`${lat.toFixed(4)}, ${lng.toFixed(4)} (GPS)`);
-          setIsLocating(false);
-        },
-        (error) => {
-          console.error("Error getting location", error);
-          toast.error("Could not get your location");
-          setIsLocating(false);
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    } else {
-      toast.error("Geolocation not supported");
+    try {
+      const { Geolocation } = await import('@capacitor/geolocation');
+      
+      let perm = await Geolocation.checkPermissions();
+      if (perm.location !== 'granted') {
+        perm = await Geolocation.requestPermissions();
+      }
+      
+      if (perm.location !== 'granted') {
+        toast.error("Location permission denied");
+        setIsLocating(false);
+        return;
+      }
+      
+      const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      setCoordinates({ lat, lng });
+      setLocationName(`${lat.toFixed(4)}, ${lng.toFixed(4)} (GPS)`);
+    } catch (error) {
+      console.error("Error getting location", error);
+      toast.error("Could not get your location");
+    } finally {
       setIsLocating(false);
     }
   };

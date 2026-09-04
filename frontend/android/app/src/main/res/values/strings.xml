@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">KisanNighaban</string>
-    <string name="title_activity_main">KisanNighaban</string>
+    <string name="app_name">Kisaan Nigahbaan</string>
+    <string name="title_activity_main">Kisaan Nigahbaan</string>
     <string name="package_name">com.kisan.nighaban</string>
     <string name="custom_url_scheme">com.kisan.nighaban</string>
 </resources>
