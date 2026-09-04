@@ -1,9 +1,14 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
 
-# We will use a local sqlite database. 
-# In a real app this would come from environment variables.
-DATABASE_URL = "sqlite+aiosqlite:///./kisan_nighaban.db"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# We will read the database URL from environment variables
+# For Supabase, ensure it uses postgresql+asyncpg://
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///./kisan_nighaban.db")
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 
