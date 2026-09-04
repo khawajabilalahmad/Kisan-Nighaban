@@ -23,7 +23,7 @@ export default function Farms() {
   // Form State
   const [formData, setFormData] = useState({
     name: '',
-    crop_type: 'wheat',
+    crop_type: '',
     sowing_date: new Date().toISOString().split('T')[0],
     area: '',
     water_source: 'canal',
@@ -169,17 +169,13 @@ export default function Farms() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{t('farms.crop_type')}</label>
-                  <select 
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Wheat, Tomato..."
                     value={formData.crop_type}
                     onChange={(e) => setFormData({...formData, crop_type: e.target.value})}
-                    className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
-                  >
-                    <option value="wheat">{t('crops.wheat')}</option>
-                    <option value="rice">{t('crops.rice')}</option>
-                    <option value="cotton">{t('crops.cotton')}</option>
-                    <option value="maize">{t('crops.maize')}</option>
-                    <option value="other">{t('crops.other')}</option>
-                  </select>
+                    className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary" 
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{t('farms.sowing_date')}</label>
