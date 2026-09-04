@@ -46,10 +46,7 @@ async def analyze_farm(farm_id: str, lang: str = "en", db: AsyncSession = Depend
 
     # 3. Get Crop Profile & Growth Stage
     crop_type_lower = farm.crop_type.lower()
-    crop_profile = CROP_PROFILES.get(crop_type_lower)
-    if not crop_profile:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Crop profile for '{farm.crop_type}' not found")
-        
+    crop_profile = CROP_PROFILES.get(crop_type_lower, {})
     growth_stage = compute_growth_stage(crop_type_lower, farm.sowing_date)
     growth_stage_day = (date.today() - farm.sowing_date).days
     
