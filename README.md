@@ -82,58 +82,24 @@ To get a local copy up and running, follow these simple steps.
    cd Kisan-Nighaban
    ```
 
-2. **Setup the Backend (FastAPI)**
-
+2. **Setup and Run Backend (FastAPI)**
    ```bash
    cd backend
-   python -m venv .venv
-
-   # Activate virtual environment
-   # Windows:
-   .venv\Scripts\activate
-   # macOS/Linux:
-   source .venv/bin/activate
-
-   # Install dependencies
-   pip install -r requirements.txt
+   # Make sure you have your .env file setup with API keys first!
+   run_server.bat
    ```
 
-3. **Configure Environment Variables**
-   Create a `.env` file in the `backend/` directory:
-
-   ```env
-   DATABASE_URL=sqlite+aiosqlite:///./kisan_nighaban.db
-   SECRET_KEY=your_super_secret_jwt_key
-   GEMINI_API_KEY=your_google_gemini_api_key
-   ```
-
-4. **Initialize the Database**
-
-   ```bash
-   python init_db.py
-   python seed.py # Optional: seeds dummy data
-   ```
-
-5. **Run the Backend Server**
-
-   ```bash
-   uvicorn app.main:app --reload --port 8000
-   ```
-
-6. **Setup the Frontend (React)**
+3. **Setup and Run Frontend (React)**
    Open a new terminal and navigate to the frontend folder:
-
    ```bash
    cd frontend
    npm install
-   ```
-
-7. **Run the Frontend Server**
-   ```bash
    npm run dev
    ```
 
-You can now access the app at `http://localhost:5173`.
+> [!TIP]
+> **Mobile Viewing Experience**
+> Kisaan Nighabaan is optimized as a mobile app experience. When testing on a desktop web browser, right-click anywhere on the page and select **Inspect**. Then toggle the device toolbar (or press `Ctrl+Shift+M`) and select a mobile device like **Pixel 7** or **Pixel 10** from the dropdown list to view the UI correctly.
 
 ---
 

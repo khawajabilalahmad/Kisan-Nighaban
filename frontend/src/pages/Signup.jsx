@@ -89,7 +89,7 @@ export default function Signup() {
 
       <div className="px-6 relative z-10 pt-4 pb-20 w-full max-w-sm mx-auto">
         <div className="text-center mb-4">
-          <div className="w-64 h-64 mx-auto flex items-center justify-center mb-2">
+          <div className="w-64 h-40 mx-auto flex items-center justify-center">
             <img src="/logo.png" alt="Kisan Nighaban Logo" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
           <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-300 tracking-tight">{t('auth.join_us')}</h1>
@@ -168,11 +168,11 @@ export default function Signup() {
               width="100%"
             />
           </div>
+          
+          <p className="text-center mt-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+            {t('auth.already_have')} <Link to="/login" className="font-bold text-primary hover:text-primary-dark ml-1">{t('auth.sign_in')}</Link>
+          </p>
         </form>
-
-        <p className="text-center mt-8 text-sm font-medium text-slate-600 dark:text-slate-400">
-          {t('auth.already_have')} <Link to="/login" className="font-bold text-primary hover:text-primary-dark ml-1">{t('auth.sign_in')}</Link>
-        </p>
       </div>
     </div>
   );
