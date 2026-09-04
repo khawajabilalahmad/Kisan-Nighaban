@@ -285,7 +285,7 @@ export default function Layout() {
 
       {/* Conditionally render SunflowerMascot exactly where it used to be at the root layer ONLY on Dashboard */}
       {path === '/' && (
-        <div className="fixed bottom-[60px] right-2 z-[5] scale-[0.65] origin-bottom-right pointer-events-auto">
+        <div className="fixed bottom-[60px] right-2 z-[15] scale-[0.65] origin-bottom-right pointer-events-auto">
           <SunflowerMascot />
         </div>
       )}
