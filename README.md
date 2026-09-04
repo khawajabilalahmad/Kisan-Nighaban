@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/khawajabilalahmad/Kisan-Nighaban">
-    <img src="frontend/public/logo.png" alt="Kisaan Nighabaan Logo" width="160" height="160">
+    <img src="frontend/public/logo.png" alt="Kisaan Nighabaan Logo" width="350">
   </a>
 
   <h1 align="center">Kisaan Nighabaan (کسان نگہبان)</h1>
