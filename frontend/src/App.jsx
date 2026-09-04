@@ -15,7 +15,6 @@ const Profile = lazy(() => import('./pages/Profile'));
 const Farms = lazy(() => import('./pages/Farms'));
 const FarmDetail = lazy(() => import('./pages/FarmDetail'));
 const Notifications = lazy(() => import('./pages/Notifications'));
-import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   return (
