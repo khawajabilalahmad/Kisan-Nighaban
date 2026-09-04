@@ -11,6 +11,7 @@ class ChatSession(Base):
 
     id = Column(String, primary_key=True, default=generate_uuid)
     farm_id = Column(String, ForeignKey("farms.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), nullable=True) # Added for user isolation
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 

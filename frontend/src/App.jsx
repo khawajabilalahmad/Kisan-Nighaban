@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
-import Chatbot from './pages/Chatbot';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import ForgotPassword from './pages/ForgotPassword';
-import Settings from './pages/Settings';
-import Profile from './pages/Profile';
-import Farms from './pages/Farms';
-import FarmDetail from './pages/FarmDetail';
-import Notifications from './pages/Notifications';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
+
+// Lazy loading pages for better startup performance
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Chatbot = lazy(() => import('./pages/Chatbot'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Farms = lazy(() => import('./pages/Farms'));
+const FarmDetail = lazy(() => import('./pages/FarmDetail'));
+const Notifications = lazy(() => import('./pages/Notifications'));
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
@@ -29,21 +32,25 @@ export default function App() {
           },
         }}
       />
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
-          <Route path="forgot-password" element={<ForgotPassword />} />
-          <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="farms" element={<ProtectedRoute><Farms /></ProtectedRoute>} />
-          <Route path="farms/:id" element={<ProtectedRoute><FarmDetail /></ProtectedRoute>} />
-          <Route path="chat" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
-          <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<div className="flex-1 h-screen w-full flex items-center justify-center bg-sky-200 dark:bg-indigo-950">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>}>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route path="login" element={<Login />} />
+            <Route path="signup" element={<Signup />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />
+            <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="farms" element={<ProtectedRoute><Farms /></ProtectedRoute>} />
+            <Route path="farms/:id" element={<ProtectedRoute><FarmDetail /></ProtectedRoute>} />
+            <Route path="chat" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
+            <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }

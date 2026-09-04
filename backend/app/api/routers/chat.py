@@ -11,7 +11,9 @@ from app.db.session import get_db
 from app.models.chat import ChatSession, ChatMessage
 from app.models.farm import Farm
 from app.models.activity import FarmActivity
+from app.models.user import User
 from app.schemas.chat import ChatSessionResponse, ChatMessageResponse
+from app.core.security import get_current_user
 from app.services.ai_service import generate_chat_reply
 from app.services.weather_service import fetch_weather_forecast
 from app.services.crop_profiles import compute_growth_stage
@@ -22,7 +24,7 @@ UPLOAD_DIR = "uploads/chat_images"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.get("/{farm_id}/history", response_model=ChatSessionResponse)
-async def get_chat_history(farm_id: str, db: AsyncSession = Depends(get_db)):
+async def get_chat_history(farm_id: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Get the chat history for a specific farm.
     If no session exists, creates an empty one.
@@ -33,13 +35,13 @@ async def get_chat_history(farm_id: str, db: AsyncSession = Depends(get_db)):
         if not farm_result.scalar_one_or_none():
             raise HTTPException(status_code=404, detail="Farm not found")
 
-    # Fetch active session
-    session_result = await db.execute(select(ChatSession).where(ChatSession.farm_id == farm_id))
+    # Fetch active session for this specific user
+    session_result = await db.execute(select(ChatSession).where(ChatSession.farm_id == farm_id, ChatSession.user_id == current_user.id))
     chat_session = session_result.scalar_one_or_none()
 
     if not chat_session:
-        # Create a new session
-        chat_session = ChatSession(farm_id=farm_id)
+        # Create a new session with user_id
+        chat_session = ChatSession(farm_id=farm_id, user_id=current_user.id)
         db.add(chat_session)
         await db.commit()
         await db.refresh(chat_session)
@@ -63,7 +65,8 @@ async def send_chat_message(
     text: str = Form(...),
     language: str = Form("english"),
     image: Optional[UploadFile] = File(None),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """
     Send a message to the AI Mascot. Supports text and an optional image upload.
@@ -77,10 +80,10 @@ async def send_chat_message(
             raise HTTPException(status_code=404, detail="Farm not found")
 
     # 2. Get or Create Session
-    session_result = await db.execute(select(ChatSession).where(ChatSession.farm_id == farm_id))
+    session_result = await db.execute(select(ChatSession).where(ChatSession.farm_id == farm_id, ChatSession.user_id == current_user.id))
     chat_session = session_result.scalar_one_or_none()
     if not chat_session:
-        chat_session = ChatSession(farm_id=farm_id)
+        chat_session = ChatSession(farm_id=farm_id, user_id=current_user.id)
         db.add(chat_session)
         await db.commit()
         await db.refresh(chat_session)
@@ -198,12 +201,12 @@ async def send_chat_message(
     return model_msg
 
 @router.delete("/{farm_id}/history")
-async def delete_chat_history(farm_id: str, db: AsyncSession = Depends(get_db)):
+async def delete_chat_history(farm_id: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
-    Deletes the chat history for a specific farm (or general chat).
+    Deletes the chat history for a specific farm (or general chat) for the current user.
     """
     # Fetch active session
-    session_result = await db.execute(select(ChatSession).where(ChatSession.farm_id == farm_id))
+    session_result = await db.execute(select(ChatSession).where(ChatSession.farm_id == farm_id, ChatSession.user_id == current_user.id))
     chat_session = session_result.scalar_one_or_none()
     
     if chat_session:
