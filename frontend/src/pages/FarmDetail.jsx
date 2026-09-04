@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Droplets, Thermometer, Wind, AlertTriangle, Trash2, Edit2, Activity, X, Navigation, MapPin, Sprout, CloudRain, Bot } from 'lucide-react';
 import MapPicker from '../components/MapPicker';
 import { farmsAPI, weatherAPI, analysisAPI, activitiesAPI } from '../services/api';
+import { reverseGeocode } from '../utils/geocoding';
 import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import toast from 'react-hot-toast';
@@ -30,18 +31,43 @@ export default function FarmDetail() {
   
   const [editData, setEditData] = useState({});
   const [activityData, setActivityData] = useState({ activity_type: 'Watering', description: '' });
-  const [locationName, setLocationName] = useState('Faisalabad, Punjab');
+  const [locationName, setLocationName] = useState('');
+  const [coordinates, setCoordinates] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
 
-  // Mock historical data ending with the current score
-  const mockHistoricalData = analysisData ? [
-    { month: 'Apr', score: Math.max(0, analysisData.health_score - 15) },
-    { month: 'May', score: Math.max(0, analysisData.health_score - 5) },
-    { month: 'Jun', score: Math.max(0, analysisData.health_score - 10) },
-    { month: 'Jul', score: Math.min(100, analysisData.health_score + 5) },
-    { month: 'Aug', score: Math.max(0, analysisData.health_score - 2) },
-    { month: 'Sep', score: analysisData.health_score },
-  ] : [];
+  // Generate historical data based on sowing date
+  const generateMockData = () => {
+    if (!analysisData || !farm) return [];
+    
+    const start = new Date(farm.sowing_date);
+    const end = new Date();
+    const data = [];
+    
+    // If farm was planted this exact month, pad with previous month = 0 to show a line
+    if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+       const prevMonth = new Date(start);
+       prevMonth.setMonth(prevMonth.getMonth() - 1);
+       data.push({
+         month: prevMonth.toLocaleString('default', { month: 'short' }),
+         score: 0
+       });
+    }
+
+    let current = new Date(start);
+    while (current <= end || (current.getMonth() === end.getMonth() && current.getFullYear() === end.getFullYear())) {
+      const isLast = current.getMonth() === end.getMonth() && current.getFullYear() === end.getFullYear();
+      data.push({
+        month: current.toLocaleString('default', { month: 'short' }),
+        score: isLast ? analysisData.health_score : Math.max(0, analysisData.health_score - Math.floor(Math.random() * 20))
+      });
+      current.setMonth(current.getMonth() + 1);
+      if (data.length > 12) break; // cap at 12 months
+    }
+    
+    return data;
+  };
+
+  const mockHistoricalData = generateMockData();
 
   useEffect(() => {
     fetchFarmData();
@@ -58,7 +84,11 @@ export default function FarmDetail() {
         water_source: data.water_source,
         soil_type: data.soil_type
       });
-      setLocationName(`${data.location_lat}, ${data.location_long}`);
+      setCoordinates({ lat: data.latitude, lng: data.longitude });
+      
+      reverseGeocode(data.latitude, data.longitude).then(addressName => {
+        setLocationName(addressName);
+      });
       
       // Simulate fetching weather
       // Fetch Weather Data
@@ -101,10 +131,26 @@ export default function FarmDetail() {
 
   const handleGetCurrentLocation = () => {
     setIsLocating(true);
-    setTimeout(() => {
-      setLocationName('Current Location (GPS)');
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setCoordinates({ lat, lng });
+          setLocationName(`${lat.toFixed(4)}, ${lng.toFixed(4)} (GPS)`);
+          setIsLocating(false);
+        },
+        (error) => {
+          console.error("Error getting location", error);
+          toast.error("Could not get your location");
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    } else {
+      toast.error("Geolocation not supported");
       setIsLocating(false);
-    }, 1500);
+    }
   };
 
   const handleChooseFromMap = () => {
@@ -114,6 +160,7 @@ export default function FarmDetail() {
   const handleConfirmMapLocation = (position) => {
     if (position) {
       setLocationName(`${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`);
+      setCoordinates(position);
     }
     setShowMapModal(false);
   };
@@ -138,8 +185,10 @@ export default function FarmDetail() {
     try {
       await farmsAPI.updateFarm(id, {
         ...editData,
-        latitude: 31.4187,
-        longitude: 73.0791
+        area: editData.area ? parseFloat(editData.area) : 0,
+        latitude: coordinates ? coordinates.lat : farm.latitude,
+        longitude: coordinates ? coordinates.lng : farm.longitude,
+        district: locationName.replace(' (GPS)', '')
       });
       setShowEditModal(false);
       toast.success("Farm updated successfully!");
@@ -220,7 +269,11 @@ export default function FarmDetail() {
           </button>
           <div>
             <h2 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">{farm.name}</h2>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 capitalize">{farm.crop_type} • {farm.area} Acres</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 capitalize">
+              {farm.crop_type} 
+              {farm.area ? ` • ${farm.area} Acres` : ' • Area not set'} 
+              {farm.district && farm.district !== 'Unknown' ? ` • ${farm.district}` : ' • Location not set'}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -569,8 +622,8 @@ export default function FarmDetail() {
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Area</label>
                 <input 
-                  type="text" 
-                  value={editData.area} 
+                  type="number" 
+                  value={editData.area || ''} 
                   onChange={(e) => setEditData({...editData, area: e.target.value})}
                   className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" 
                 />

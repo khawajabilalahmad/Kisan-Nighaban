@@ -4,6 +4,7 @@ import { Map, Plus, ChevronRight, X, Navigation, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import MapPicker from '../components/MapPicker';
 import { farmsAPI } from '../services/api';
+import { reverseGeocode } from '../utils/geocoding';
 
 export default function Farms() {
   const navigate = useNavigate();
@@ -66,11 +67,14 @@ export default function Farms() {
     setIsLocating(true);
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           setCoordinates({ lat, lng });
-          setLocationName(`${lat.toFixed(4)}, ${lng.toFixed(4)} (GPS)`);
+          
+          // Reverse geocode to get a readable name
+          const addressName = await reverseGeocode(lat, lng);
+          setLocationName(`${addressName} (GPS)`);
           setIsLocating(false);
         },
         (error) => {
@@ -90,12 +94,17 @@ export default function Farms() {
     setShowMapModal(true);
   };
 
-  const handleConfirmMapLocation = (position) => {
+  const handleConfirmMapLocation = async (position) => {
     if (position) {
       setCoordinates(position);
-      setLocationName(`${position.lat.toFixed(4)}, ${position.lng.toFixed(4)} (Map)`);
+      setLocationName("Loading location name...");
+      setShowMapModal(false);
+      
+      const addressName = await reverseGeocode(position.lat, position.lng);
+      setLocationName(addressName);
+    } else {
+      setShowMapModal(false);
     }
-    setShowMapModal(false);
   };
 
   const handleSaveFarm = async () => {
@@ -112,12 +121,13 @@ export default function Farms() {
       await farmsAPI.createFarm({
         name: formData.name,
         crop_type: formData.crop_type,
+        area: formData.area ? parseFloat(formData.area) : 0,
         soil_type: formData.soil_type,
         water_source: formData.water_source,
         latitude: coordinates.lat,
         longitude: coordinates.lng,
         sowing_date: formData.sowing_date,
-        district: "Unknown" // Can be enhanced with reverse geocoding
+        district: locationName.replace(' (GPS)', '')
       });
       setShowAddModal(false);
       setFormData({ name: '', crop_type: '', sowing_date: new Date().toISOString().split('T')[0], area: '', water_source: 'canal', soil_type: 'loamy' });
@@ -230,10 +240,10 @@ export default function Farms() {
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{t('farms.farm_location')}</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Faisalabad, Punjab" 
+                  placeholder={t('farms.farm_location', 'Farm Location')}
                   value={locationName}
-                  onChange={(e) => setLocationName(e.target.value)}
-                  className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary mb-2" 
+                  readOnly
+                  className="w-full bg-slate-100/50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none mb-2 cursor-not-allowed" 
                 />
                 
                 <div className="flex gap-2">
@@ -297,7 +307,9 @@ export default function Farms() {
 
               <div className="flex-1">
                 <h3 className="font-bold text-lg text-slate-800 dark:text-white group-hover:text-primary transition-colors">{farm.name}</h3>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5 capitalize">{farm.crop_type} • {farm.water_source}</p>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5 capitalize">
+                  {farm.crop_type} • {farm.district && farm.district !== 'Unknown' ? farm.district : 'Location not set'}
+                </p>
               </div>
 
               <div className="flex flex-col items-end gap-1">

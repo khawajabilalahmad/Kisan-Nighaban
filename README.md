@@ -46,6 +46,7 @@ The app features a built-in **Digital Kisaan Bhai**—an intelligent, conversati
 ## 🛠 Tech Stack
 
 ### Frontend
+
 - **React 18** (Vite)
 - **Tailwind CSS** (for fully responsive, modern UI)
 - **i18next** (Internationalization for EN/UR/RU)
@@ -54,6 +55,7 @@ The app features a built-in **Digital Kisaan Bhai**—an intelligent, conversati
 - **React Markdown** (Rendering AI responses)
 
 ### Backend
+
 - **FastAPI** (High-performance Python API)
 - **SQLAlchemy & SQLite** (Asynchronous database management)
 - **Google GenAI SDK** (Gemini 3.1 Flash Lite integration)
@@ -74,28 +76,31 @@ To get a local copy up and running, follow these simple steps.
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/khawajabilalahmad/Kisan-Nighaban.git
    cd Kisan-Nighaban
    ```
 
 2. **Setup the Backend (FastAPI)**
+
    ```bash
    cd backend
    python -m venv .venv
-   
+
    # Activate virtual environment
    # Windows:
    .venv\Scripts\activate
    # macOS/Linux:
    source .venv/bin/activate
-   
+
    # Install dependencies
    pip install -r requirements.txt
    ```
 
 3. **Configure Environment Variables**
    Create a `.env` file in the `backend/` directory:
+
    ```env
    DATABASE_URL=sqlite+aiosqlite:///./kisan_nighaban.db
    SECRET_KEY=your_super_secret_jwt_key
@@ -103,18 +108,21 @@ To get a local copy up and running, follow these simple steps.
    ```
 
 4. **Initialize the Database**
+
    ```bash
    python init_db.py
    python seed.py # Optional: seeds dummy data
    ```
 
 5. **Run the Backend Server**
+
    ```bash
    uvicorn app.main:app --reload --port 8000
    ```
 
 6. **Setup the Frontend (React)**
    Open a new terminal and navigate to the frontend folder:
+
    ```bash
    cd frontend
    npm install
@@ -131,11 +139,9 @@ You can now access the app at `http://localhost:5173`.
 
 ## 📸 Screenshots
 
-*(Drag and drop your application screenshots here!)*
-
 <div align="center">
-  <img src="https://via.placeholder.com/800x400.png?text=Dashboard+Screenshot+Here" width="400" />
-  <img src="https://via.placeholder.com/800x400.png?text=Chatbot+Screenshot+Here" width="400" />
+  <img src="frontend/public/ss1.png" width="400" alt="Dashboard Screenshot" />
+  <img src="frontend/public/ss2.png" width="400" alt="Chatbot Screenshot" />
 </div>
 
 ---
