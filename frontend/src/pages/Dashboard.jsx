@@ -81,7 +81,9 @@ export default function Dashboard() {
                   <MapPin size={20} />
                 </div>
                 <h4 className="font-bold text-slate-800 dark:text-white truncate w-full">{farm.name}</h4>
-                <p className="text-xs font-medium text-slate-500 truncate w-full">{farm.crop_type} • {farm.district}</p>
+                <p className="text-xs font-medium text-slate-500 truncate w-full capitalize">
+                  {farm.crop_type} • {farm.district && farm.district !== 'Unknown' ? farm.district : 'Location not set'}
+                </p>
               </button>
             ))}
           </div>
